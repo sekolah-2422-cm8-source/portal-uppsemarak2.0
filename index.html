@@ -273,13 +273,40 @@
                     <i id="sound-icon" class="fa-solid fa-volume-high text-sky-400"></i>
                 </button>
 
-                <a id="btn-dashboard-top" href="#" target="_blank" class="bg-gradient-to-r from-sky-500 to-teal-500 hover:from-sky-600 hover:to-teal-600 text-white text-xs font-semibold px-4 py-2 rounded-lg shadow-md hover:shadow-glow transition flex items-center gap-2">
+                <a id="btn-dashboard-top" href="#" target="_blank" class="hidden md:flex bg-gradient-to-r from-sky-500 to-teal-500 hover:from-sky-600 hover:to-teal-600 text-white text-xs font-semibold px-4 py-2 rounded-lg shadow-md hover:shadow-glow transition flex items-center gap-2">
                     <i class="fa-solid fa-chart-pie"></i>
                     <span>Dashboard Analisis</span>
                 </a>
+                <!-- Menu telefon -->
+                <button id="mnu-btn" type="button" aria-label="Menu" aria-expanded="false" class="md:hidden w-10 h-10 rounded-xl bg-gradient-to-br from-sky-500 to-teal-500 text-white shadow-md flex items-center justify-center active:scale-95 transition">
+                    <i id="mnu-ico" class="fa-solid fa-bars text-base"></i>
+                </button>
+            </div>
+        </div>
+        <div id="mnu-panel" class="hidden md:hidden border-t border-slate-700/70 bg-slate-900/95 backdrop-blur-md px-4 py-3 max-h-[75vh] overflow-y-auto">
+            <div class="grid grid-cols-2 gap-2 text-xs font-semibold">
+                <a href="#dashboard" class="mnu-i bg-sky-500/15 text-sky-300 border-sky-400/30"><i class="fa-solid fa-house"></i>Utama</a>
+                <a href="#sistem" class="mnu-i bg-teal-500/15 text-teal-300 border-teal-400/30"><i class="fa-solid fa-bolt"></i>Akses Pantas</a>
+                <a id="link-dashboard-menu" href="#" target="_blank" class="mnu-i bg-cyan-500/15 text-cyan-300 border-cyan-400/30"><i class="fa-solid fa-chart-pie"></i>Dashboard Analisis</a>
+                <a href="#drive" class="mnu-i bg-indigo-500/15 text-indigo-300 border-indigo-400/30"><i class="fa-solid fa-folder-open"></i>Folder Dokumen</a>
+                <a href="#opr" class="mnu-i bg-rose-500/15 text-rose-300 border-rose-400/30"><i class="fa-solid fa-file-lines"></i>Laporan OPR</a>
+                <a href="#takwim" class="mnu-i bg-violet-500/15 text-violet-300 border-violet-400/30"><i class="fa-solid fa-calendar-days"></i>Takwim</a>
+                <a href="#bertugas" class="mnu-i bg-emerald-500/15 text-emerald-300 border-emerald-400/30"><i class="fa-solid fa-user-clock"></i>Guru Bertugas</a>
+                <a href="#jawatankuasa" class="mnu-i bg-orange-500/15 text-orange-300 border-orange-400/30"><i class="fa-solid fa-sitemap"></i>Carta Organisasi</a>
+                <a href="#admin" onclick="adminOpen(event)" class="mnu-i col-span-2 bg-amber-500/15 text-amber-300 border-amber-400/30"><i class="fa-solid fa-lock"></i>Admin</a>
             </div>
         </div>
     </header>
+    <style>.mnu-i{display:flex;align-items:center;gap:.5rem;padding:.7rem .8rem;border-radius:.85rem;border-width:1px;transition:transform .15s}.mnu-i:active{transform:scale(.96)}.mnu-i i{width:1.1rem;text-align:center}#mnu-panel{animation:mnuIn .18s ease-out}@keyframes mnuIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}</style>
+    <script>
+    (function () {
+        const b = document.getElementById('mnu-btn'), p = document.getElementById('mnu-panel'), ic = document.getElementById('mnu-ico');
+        if (!b || !p) return;
+        const set = open => { p.classList.toggle('hidden', !open); b.setAttribute('aria-expanded', open); ic.className = 'fa-solid text-base ' + (open ? 'fa-xmark' : 'fa-bars'); };
+        b.addEventListener('click', () => { set(p.classList.contains('hidden')); try { sfx('click'); } catch (e) {} });
+        p.addEventListener('click', e => { if (e.target.closest('a')) set(false); });
+    })();
+    </script>
 
     <!-- Main Content Container -->
     <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-8" id="dashboard">
@@ -436,6 +463,7 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <button type="button" onclick="oprOpenForm()" class="opr-cta rounded-2xl px-4 py-3.5 flex items-center gap-3 text-left"><span class="w-11 h-11 rounded-full bg-white/25 flex items-center justify-center text-lg shrink-0"><i class="fa-solid fa-wand-magic-sparkles"></i></span><span><span class="block font-extrabold text-sm">Jana OPR</span><span class="block text-[11px] text-white/85">Laporan aktiviti program</span></span></button>
                 <button type="button" onclick="waOpen()" class="wa-banner rounded-2xl px-4 py-3.5 flex items-center gap-3 text-left text-white"><span class="w-11 h-11 rounded-full bg-white/25 flex items-center justify-center text-lg shrink-0"><i class="fa-solid fa-comment-dots"></i></span><span><span class="block font-extrabold text-sm">Jana Mesej WhatsApp</span><span class="block text-[11px] text-white/85">Makluman untuk group guru</span></span></button>
+                <button type="button" onclick="kpOpen()" class="rounded-2xl px-4 py-3.5 flex items-center gap-3 text-left text-white sm:col-span-2" style="background:linear-gradient(135deg,#0ea5e9,#6366f1);box-shadow:0 8px 18px rgba(14,165,233,.35)"><span class="w-11 h-11 rounded-full bg-white/25 flex items-center justify-center text-lg shrink-0"><i class="fa-solid fa-clipboard-user"></i></span><span><span class="block font-extrabold text-sm">Senarai Ambil Kertas</span><span class="block text-[11px] text-white/85">Guru ambil kertas &amp; guru relief</span></span></button>
             </div>
         </section>
 
@@ -923,6 +951,8 @@ function applyTetapan(rows) {
         else if (k === 'mesej_countdown') CFG.msg = v;
     });
 }
+let SENARAI = [];
+function applySenarai(rows) { if (rows.head && rows.head.includes('nama')) SENARAI = rows.map(r => r.nama).filter(Boolean); }
 function applyGuru(rows) {
     const list = rows.filter(r => r.nama && HARI_LIST.includes((r.hari || '').toLowerCase())).map(r => ({ nama: r.nama, hari: r.hari.toLowerCase() }));
     if (list.length) DUTY = list;
@@ -934,7 +964,7 @@ function applyPautan(rows) {
         if (r.tajuk) TAJUK[k] = r.tajuk;
     });
 }
-const LINK_IDS = { dashboard: ['btn-dashboard-top', 'link-dashboard-card'], slip: ['link-slip'], analisis: ['link-analisis'], jadual: ['link-jadual'], spm: ['link-spm'], pbd: ['link-pbd'], kertas: ['link-kertas'] };
+const LINK_IDS = { dashboard: ['btn-dashboard-top', 'link-dashboard-card', 'link-dashboard-menu'], slip: ['link-slip'], analisis: ['link-analisis'], jadual: ['link-jadual'], spm: ['link-spm'], pbd: ['link-pbd'], kertas: ['link-kertas'] };
 function applyLinks() {
     Object.entries(LINK_IDS).forEach(([k, ids]) => ids.forEach(id => {
         const a = byId(id); if (!a) return;
@@ -951,19 +981,19 @@ function cdUpdate(k) {
     const p = k === 'spm' ? 'cd-spm' : 'cd-dal', pool = cdPool(k), now = Date.now();
     const set = (id, v) => { const el = byId(`${p}-${id}`); if (el) el.textContent = v; };
     const tiles = a => ['days', 'hours', 'mins', 'secs'].forEach((x, i) => set(x, a[i]));
+    const bar = show => { const el = byId(`${p}-date`); if (el && el.parentElement) el.parentElement.classList.toggle('hidden', !show); };
     const name = k === 'spm' ? 'SPM' : 'Ujian Dalaman';
     if (!CFG[k] || !pool.length) {
         set('title', `Tarikh ${name} Belum Ditetapkan`);
-        set('date', (k === 'spm' ? CFG.msgSpm : CFG.msgDalaman) || CFG.msg || 'Akan diumumkan kelak');
-        tiles(['--', '--', '--', '--']); return;
+        bar(false); tiles(['--', '--', '--', '--']); return;
     }
     const next = pool.find(e => e.start.getTime() > now);
     if (!next) {
         set('title', k === 'spm' ? 'Semua Fasa SPM Telah Tamat' : 'Ujian & Pentaksiran Telah Tamat');
-        set('date', 'Status: Selesai'); tiles(['00', '00', '00', '00']); return;
+        bar(true); set('date', 'Status: Selesai'); tiles(['00', '00', '00', '00']); return;
     }
     const d = next.start.getTime() - now, pad = n => String(n).padStart(2, '0');
-    set('title', next.title); set('date', 'Tarikh: ' + next.dateStr);
+    bar(true); set('title', next.title); set('date', 'Tarikh: ' + next.dateStr);
     tiles([pad(Math.floor(d / 864e5)), pad(Math.floor(d % 864e5 / 36e5)), pad(Math.floor(d % 36e5 / 6e4)), pad(Math.floor(d % 6e4 / 1000))]);
 }
 function updateSPMCountdown() { cdUpdate('spm'); }
@@ -1077,7 +1107,7 @@ function renderChart(rows) {
 function renderAll() { try { renderChart(window.JK_ROWS || DEFAULT_JK); } catch (e) { console.error('Carta:', e); } renderAnn(); renderTakwim(); renderDuty(); updateSPMCountdown(); updateDalamanCountdown(); }
 async function loadSheetData() {
     if (!SHEET_ID && !SHEET_PUB_URL) return;
-    const jobs = [['takwim', applyTakwim], ['guru', applyGuru], ['jawatankuasa', renderChart], ['pautan', applyPautan], ['tetapan', applyTetapan]];
+    const jobs = [['takwim', applyTakwim], ['guru', applyGuru], ['jawatankuasa', renderChart], ['pautan', applyPautan], ['tetapan', applyTetapan], ['senarai_guru', applySenarai]];
     await Promise.all(jobs.map(async ([tab, fn]) => { const rows = await fetchRows(tab); if (rows) fn(rows); }));
     renderAll(); applyLinks();
 }
@@ -1211,6 +1241,31 @@ window.addEventListener('message', ev => {
                 <div class="flex justify-end gap-2"><button type="button" onclick="oprClose('opr-login-modal')" class="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-100">Batal</button><button id="opr-login-btn" type="submit" class="opr-cta px-5 py-2.5 rounded-xl text-xs font-extrabold">Masuk</button></div>
             </div>
         </form>
+    </div>
+
+
+    <!-- Senarai Ambil Kertas -->
+    <div id="kp-modal" class="fixed inset-0 z-[118] hidden bg-slate-950/80 backdrop-blur-sm sm:p-4 flex items-center justify-center" role="dialog" aria-modal="true">
+        <div class="bg-white w-full h-[100dvh] sm:h-auto sm:max-h-[92vh] sm:max-w-xl sm:rounded-3xl shadow-2xl overflow-hidden flex flex-col">
+            <div class="px-5 py-4 flex items-center justify-between text-white shrink-0" style="background:linear-gradient(135deg,#0ea5e9,#6366f1)">
+                <div class="font-extrabold"><i class="fa-solid fa-clipboard-user mr-2"></i>Senarai Ambil Kertas</div>
+                <button type="button" onclick="kpClose()" class="w-9 h-9 rounded-full bg-white/20 hover:bg-white/30" aria-label="Tutup"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="p-5 overflow-y-auto space-y-3 flex-1">
+                <div class="grid grid-cols-2 gap-2">
+                    <select id="kp-ex" class="opr-in" onchange="kpSet('ex',this.value)"></select>
+                    <input id="kp-tarikh" type="date" class="opr-in" oninput="kpSet('tarikh',this.value)">
+                </div>
+                <input id="kp-info" class="opr-in" placeholder="Masa &amp; tempat ambil kertas" oninput="kpSet('info',this.value)">
+                <div id="kp-rows" class="space-y-2"></div>
+                <button type="button" onclick="kpAdd()" class="w-full py-2.5 rounded-xl border-2 border-dashed border-sky-300 text-sky-600 text-xs font-extrabold hover:bg-sky-50"><i class="fa-solid fa-plus mr-1"></i> Tambah guru</button>
+                <textarea id="kp-text" rows="9" class="opr-in" style="font-family:inherit;line-height:1.5"></textarea>
+            </div>
+            <div class="px-5 py-3 border-t border-slate-100 bg-slate-50 grid grid-cols-2 gap-2 shrink-0">
+                <button type="button" onclick="kpCopy()" class="px-4 py-3 rounded-xl text-xs font-extrabold bg-white border-2 border-slate-200 text-slate-700 hover:border-sky-400"><i class="fa-regular fa-copy mr-1"></i> Salin Teks</button>
+                <button type="button" onclick="kpToWa()" class="wa-send px-4 py-3 rounded-xl text-xs font-extrabold text-white"><i class="fa-solid fa-image mr-1"></i> Gambar / WhatsApp</button>
+            </div>
+        </div>
     </div>
 
     <div id="wa-modal" class="fixed inset-0 z-[118] hidden bg-slate-950/80 backdrop-blur-sm sm:p-4 flex items-center justify-center" role="dialog" aria-modal="true">
@@ -1429,12 +1484,36 @@ document.addEventListener('DOMContentLoaded', oprLoad);
 </script>
 <script>
 // ================= Mesej WhatsApp =================
-const WA_T = [['pengumuman', 'Pengumuman', '#f59e0b', 'fa-bullhorn'], ['ujian', 'Peringatan Ujian', '#ef4444', 'fa-bell'], ['bertugas', 'Guru Bertugas', '#3b82f6', 'fa-user-clock'], ['takwim', 'Takwim', '#8b5cf6', 'fa-calendar-days'], ['opr', 'Laporan OPR', '#d946ef', 'fa-clipboard-list'], ['bebas', 'Bebas', '#10b981', 'fa-pen']];
-let waTpl = 'pengumuman', waEv = [];
+const WA_T = [['pengumuman', 'Pengumuman', '#f59e0b', 'fa-bullhorn'], ['ujian', 'Peringatan Ujian', '#ef4444', 'fa-bell'], ['bertugas', 'Guru Bertugas', '#3b82f6', 'fa-user-clock'], ['kertas', 'Ambil Kertas', '#0ea5e9', 'fa-clipboard-user'], ['takwim', 'Takwim', '#8b5cf6', 'fa-calendar-days'], ['opr', 'Laporan OPR', '#d946ef', 'fa-clipboard-list'], ['bebas', 'Bebas', '#10b981', 'fa-pen']];
+let waTpl = 'pengumuman', waEv = [], waEvx = [];
+const EXAMS = [['UP1', 'UJIAN PENILAIAN 1'], ['UPSA', 'UJIAN PERTENGAHAN SESI AKADEMIK'], ['PPSA', 'PEPERIKSAAN PERTENGAHAN SESI AKADEMIK'], ['PPC', 'PEPERIKSAAN PERCUBAAN SPM'], ['SPM', '']];
+const exLabel = x => x[1] ? `${x[0]} (${x[1]})` : x[0];
+const ymd = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+const ymdParse = v => { const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(v || ''); return m ? new Date(+m[1], +m[2] - 1, +m[3]) : null; };
+function exMatch(x, e) {
+    const T = ((e.title || '') + ' ' + (e.label || '')).toUpperCase(), c = x[0];
+    if (c === 'SPM') return /\bSPM\b/.test(T) && !/PPC|PERCUBAAN/.test(T);
+    return new RegExp('\\b' + c + '\\b').test(T) || (x[1] && T.includes(x[1]));
+}
+function waExSync(auto) {
+    const x = EXAMS[+(byId('wa-ex') || {}).value || 0], now = Date.now();
+    waEvx = EVENTS.filter(e => e.jenis !== 'pengumuman' && e.start && (e.end || e.start).getTime() >= now && exMatch(x, e)).sort((a, b) => a.start - b.start);
+    const sel = byId('wa-ev');
+    sel.innerHTML = (waEvx.length ? waEvx.map((e, i) => `<option value="${i}">Takwim: ${esc(e.title)} (${esc(e.dateStr)})</option>`).join('') : '') + `<option value="-1">${waEvx.length ? 'Pilih tarikh sendiri' : 'Tiada dalam takwim - pilih tarikh sendiri'}</option>`;
+    if (auto) { sel.value = waEvx.length ? '0' : '-1'; waEvPick(); }
+}
+function waEvPick() {
+    const e = waEvx[+byId('wa-ev').value];
+    if (e) { byId('wa-d1').value = ymd(e.start); byId('wa-d2').value = e.end && e.end.toDateString() !== e.start.toDateString() ? ymd(e.end) : ''; }
+    else if (!byId('wa-d1').value) byId('wa-d1').value = ymd(new Date());
+    waBuild();
+}
+function waDateEdit() { const s = byId('wa-ev'); if (s) s.value = '-1'; waBuild(); }
 const WA_FOOT = '\n\n_Unit Peperiksaan & Penilaian SMK Karak_';
 function waOpen() { oprNeedAdmin(() => { sfx('click'); waPick(waTpl, true); byId('wa-img-panel').classList.add('hidden'); byId('wa-main').classList.remove('hidden'); byId('wa-foot').classList.remove('hidden'); oprShow('wa-modal'); }); }
 function waClose() { byId('wa-modal').classList.add('hidden'); document.body.style.overflow = ''; }
 function waPick(t, silent) {
+    if (t === 'kertas') { waClose(); kpOpen(); return; }
     waTpl = t; if (!silent) sfx('click');
     byId('wa-chips').innerHTML = WA_T.map(x => `<button type="button" class="wa-chip ${x[0] === t ? 'on' : ''}" style="--c:${x[2]}" onclick="waPick('${x[0]}')"><i class="fa-solid ${x[3]} mr-1"></i>${x[1]}</button>`).join('');
     const ctx = byId('wa-ctx'), inp = (id, ph, v) => `<input id="${id}" class="opr-in" placeholder="${ph}" value="${esc(v || '')}" oninput="waBuild()">`, now = Date.now();
@@ -1442,8 +1521,11 @@ function waPick(t, silent) {
         const a = EVENTS.find(e => e.jenis === 'pengumuman' && (!e.start || e.start.getTime() <= now) && (!e.end || e.end.getTime() >= now)) || {};
         ctx.innerHTML = inp('wa-a1', 'Tajuk pengumuman', a.title) + `<textarea id="wa-a2" rows="2" class="opr-in" placeholder="Butiran (pilihan)" oninput="waBuild()">${esc(a.desc || '')}</textarea>`;
     } else if (t === 'ujian') {
-        waEv = EVENTS.filter(e => e.jenis !== 'pengumuman' && e.start && (e.end || e.start).getTime() >= now).sort((a, b) => a.start - b.start);
-        ctx.innerHTML = waEv.length ? `<select id="wa-sel" class="opr-in" onchange="waBuild()">${waEv.map((e, i) => `<option value="${i}">${esc(e.title)} (${esc(e.dateStr)})</option>`).join('')}</select>` : '<p class="text-xs text-slate-400">Tiada ujian atau peperiksaan dalam takwim. Guna templat Bebas.</p>';
+        ctx.innerHTML = `<select id="wa-ex" class="opr-in" onchange="waExSync(true)">${EXAMS.map((x, i) => `<option value="${i}">${esc(exLabel(x))}</option>`).join('')}</select>
+            <select id="wa-ev" class="opr-in" onchange="waEvPick()"></select>
+            <div class="grid grid-cols-2 gap-2"><label class="text-[10px] font-bold text-slate-500">Tarikh mula<input id="wa-d1" type="date" class="opr-in mt-1" oninput="waDateEdit()"></label><label class="text-[10px] font-bold text-slate-500">Tarikh tamat (pilihan)<input id="wa-d2" type="date" class="opr-in mt-1" oninput="waDateEdit()"></label></div>
+            <input id="wa-nt" class="opr-in" placeholder="Catatan (pilihan)" oninput="waBuild()">`;
+        waExSync(true);
     } else if (t === 'bertugas') {
         const d0 = HARI_LIST.includes(HARI_JS[new Date().getDay()]) ? HARI_JS[new Date().getDay()] : 'isnin';
         ctx.innerHTML = `<select id="wa-sel" class="opr-in" onchange="waBuild()">${HARI_LIST.map(h => `<option value="${h}" ${h === d0 ? 'selected' : ''}>${h.charAt(0).toUpperCase() + h.slice(1)}</option>`).join('')}</select>`;
@@ -1459,8 +1541,14 @@ function waBuild() {
     let m = '';
     if (t === 'pengumuman') m = `📢 *PENGUMUMAN UPP*\n\n*${g('wa-a1') || '(tajuk)'}*${g('wa-a2') ? '\n' + g('wa-a2') : ''}\n\nSekian, harap maklum. Terima kasih.`;
     else if (t === 'ujian') {
-        const e = waEv[+g('wa-sel')];
-        if (e) { const dd = Math.ceil((e.start.getTime() - now) / 864e5); m = `⏰ *PERINGATAN*\n\n*${e.title}*\n📅 ${e.dateStr}\n${dd > 0 ? '⏳ ' + dd + ' hari lagi' : '📍 Sedang berlangsung'}${e.desc ? '\n\n' + e.desc : ''}\n\nSila buat persiapan awal. Terima kasih.`; }
+        const x = EXAMS[+g('wa-ex')] || EXAMS[0], a = ymdParse(g('wa-d1')), b = ymdParse(g('wa-d2'));
+        let when = '📅 Tarikh akan diumumkan kelak', left = '';
+        if (a) {
+            when = '📅 ' + fmtRange(a, b && b > a ? b : null);
+            const t0 = new Date(); t0.setHours(0, 0, 0, 0); const dd = Math.round((a - t0) / 864e5), end = b && b > a ? b : a;
+            left = dd > 0 ? `\n⏳ ${dd} hari lagi` : (t0 <= end ? '\n📍 Hari ini / sedang berlangsung' : '');
+        }
+        m = `⏰ *PERINGATAN ${x[0]}*\n\n*${exLabel(x)}*\n${when}${left}${g('wa-nt') ? '\n\n' + g('wa-nt') : ''}\n\nSila buat persiapan awal. Terima kasih.`;
     } else if (t === 'bertugas') {
         const h = g('wa-sel'), n = DUTY.filter(d => d.hari === h).map(d => '• ' + d.nama);
         m = `👩‍🏫 *GURU BERTUGAS UPP*\n📅 Hari ${h.charAt(0).toUpperCase() + h.slice(1)}\n\n${n.join('\n') || '• (belum ditetapkan)'}\n\nSekiranya ada sebarang masalah, sila berhubung dengan guru bertugas.`;
@@ -1482,6 +1570,62 @@ function waCopy() {
 function waSend() {
     const v = byId('wa-text').value.trim(); if (!v) { oprToast('Mesej kosong', '#f43f5e'); return; }
     sfx('ok'); window.open('https://wa.me/?text=' + encodeURIComponent(v), '_blank');
+}
+</script>
+<script>
+// ================= Senarai Ambil Kertas =================
+const KP_KEY = 'upp_kp_v1';
+let KP = { ex: 0, tarikh: '', info: 'Bilik UPP sebelum 7.20 pagi', rows: [] }, KP_EXTRA = [];
+try { const j = JSON.parse(localStorage.getItem(KP_KEY) || 'null'); if (j && Array.isArray(j.rows)) { KP = Object.assign(KP, j.kp || {}, { rows: j.rows }); KP_EXTRA = j.extra || []; } } catch (e) {}
+function kpSave() { try { localStorage.setItem(KP_KEY, JSON.stringify({ kp: { ex: KP.ex, info: KP.info }, rows: KP.rows, extra: KP_EXTRA })); } catch (e) {} }
+function kpNames() {
+    const set = new Set(); const add = n => { n = (n || '').trim(); if (n) set.add(n); };
+    SENARAI.forEach(add); (window.JK_ROWS || []).forEach(r => add(r.nama)); DUTY.forEach(d => add(d.nama)); KP_EXTRA.forEach(add);
+    return [...set].sort((a, b) => a.localeCompare(b, 'ms'));
+}
+function kpSel(i, f, val, custom, ph) {
+    if (custom) return `<input class="opr-in" placeholder="${ph}" value="${esc(val)}" oninput="kpSet('${f}',this.value,${i})" onblur="kpLearn(this.value)" autofocus>`;
+    return `<select class="opr-in" onchange="kpPick(${i},'${f}',this.value)"><option value="">${ph}</option>${kpNames().map(n => `<option ${n === val ? 'selected' : ''}>${esc(n)}</option>`).join('')}<option value="__baru__">➕ Taip nama lain…</option></select>`;
+}
+function kpLearn(n) { n = (n || '').trim(); if (n && !kpNames().includes(n)) { KP_EXTRA.push(n); kpSave(); } }
+function kpRender() {
+    byId('kp-ex').innerHTML = EXAMS.map((x, i) => `<option value="${i}" ${i === +KP.ex ? 'selected' : ''}>${esc(x[0])}</option>`).join('');
+    byId('kp-tarikh').value = KP.tarikh; byId('kp-info').value = KP.info;
+    byId('kp-rows').innerHTML = KP.rows.map((r, i) => `<div class="rounded-2xl p-3 border-2 space-y-2 ${r.hadir ? 'border-sky-100 bg-sky-50/50' : 'border-rose-200 bg-rose-50/60'}">
+        <div class="flex items-center gap-2"><span class="w-6 h-6 rounded-full bg-sky-500 text-white text-[11px] font-extrabold flex items-center justify-center shrink-0">${i + 1}</span><div class="flex-1 min-w-0">${kpSel(i, 'nama', r.nama, r.cNama, 'Pilih nama guru')}</div><button type="button" onclick="kpDel(${i})" class="w-8 h-8 rounded-full text-slate-400 hover:text-rose-500 hover:bg-rose-50 shrink-0" aria-label="Buang"><i class="fa-solid fa-trash-can"></i></button></div>
+        <input class="opr-in" placeholder="Bilik / kelas / kertas (cth: Bilik 4A • BM K1)" value="${esc(r.ket)}" oninput="kpSet('ket',this.value,${i})">
+        <button type="button" onclick="kpHadir(${i})" class="px-3 py-1.5 rounded-full text-[11px] font-extrabold ${r.hadir ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-500 text-white'}"><i class="fa-solid ${r.hadir ? 'fa-user-check' : 'fa-user-xmark'} mr-1"></i>${r.hadir ? 'Hadir' : 'Tidak hadir'}</button>
+        ${r.hadir ? '' : `<div class="flex items-center gap-2"><i class="fa-solid fa-people-arrows text-rose-500"></i><div class="flex-1 min-w-0">${kpSel(i, 'relief', r.relief, r.cRelief, 'Pilih guru relief')}</div></div>`}</div>`).join('') || '<p class="text-xs text-slate-400 text-center py-3">Tekan "Tambah guru" untuk mula.</p>';
+    kpBuild();
+}
+function kpSet(f, v, i) { if (i === undefined) { KP[f] = v; } else KP.rows[i][f] = v; kpSave(); if (i === undefined || ['ket', 'nama', 'relief'].includes(f)) kpBuild(); }
+function kpPick(i, f, v) { const r = KP.rows[i], c = f === 'nama' ? 'cNama' : 'cRelief'; if (v === '__baru__') { r[c] = true; r[f] = ''; kpRender(); } else { r[f] = v; kpBuild(); kpSave(); } sfx('click'); }
+function kpHadir(i) { const r = KP.rows[i]; r.hadir = !r.hadir; if (r.hadir) { r.relief = ''; r.cRelief = false; } sfx('click'); kpSave(); kpRender(); }
+function kpAdd() { KP.rows.push({ nama: '', ket: '', hadir: true, relief: '' }); sfx('click'); kpSave(); kpRender(); }
+function kpDel(i) { KP.rows.splice(i, 1); sfx('click'); kpSave(); kpRender(); }
+function kpBuild() {
+    const x = EXAMS[+KP.ex] || EXAMS[0], d = ymdParse(KP.tarikh), HR = ['Ahad', 'Isnin', 'Selasa', 'Rabu', 'Khamis', 'Jumaat', 'Sabtu'];
+    const tgl = d ? `${HR[d.getDay()]}, ${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()}` : '';
+    const rows = KP.rows.filter(r => r.nama || r.relief);
+    const lines = rows.map((r, i) => {
+        const k = r.ket ? ` – ${r.ket}` : '';
+        if (r.hadir) return `${i + 1}. ${r.nama}${k}`;
+        return `${i + 1}. ~${r.nama || '(guru)'}~ _(tidak hadir)_\n     🔁 Relief: *${r.relief || '(belum ditetapkan)'}*${k}`;
+    });
+    byId('kp-text').value = rows.length ? `📋 *SENARAI AMBIL KERTAS ${x[0]}*\n${tgl ? '📅 ' + tgl + '\n' : ''}${KP.info ? '📍 ' + KP.info + '\n' : ''}\n${lines.join('\n')}\n\nSila ambil kertas tepat pada masa. Guru relief, sila ambil bagi pihak guru yang tidak hadir. Terima kasih.${WA_FOOT}` : '';
+}
+function kpOpen() { oprNeedAdmin(() => { if (!KP.tarikh) KP.tarikh = ymd(new Date()); if (!KP.rows.length) KP.rows.push({ nama: '', ket: '', hadir: true, relief: '' }); sfx('click'); kpRender(); oprShow('kp-modal'); }); }
+function kpClose() { byId('kp-modal').classList.add('hidden'); document.body.style.overflow = ''; }
+function kpCopy() {
+    const a = byId('kp-text'), v = a.value; if (!v) { oprToast('Senarai kosong', '#f43f5e'); return; }
+    const fb = () => { a.select(); try { document.execCommand('copy'); } catch (e) {} };
+    if (navigator.clipboard) navigator.clipboard.writeText(v).catch(fb); else fb();
+    sfx('ok'); oprToast('Senarai disalin');
+}
+function kpToWa() {
+    const v = byId('kp-text').value; if (!v) { oprToast('Senarai kosong', '#f43f5e'); return; }
+    kpClose(); waTpl = 'bebas'; waPick('bebas', true); byId('wa-text').value = v;
+    byId('wa-img-panel').classList.add('hidden'); byId('wa-main').classList.remove('hidden'); byId('wa-foot').classList.remove('hidden'); oprShow('wa-modal'); sfx('click');
 }
 </script>
 <script>
@@ -1509,7 +1653,7 @@ document.addEventListener('DOMContentLoaded', adminSync);
 let waBlob = null;
 function waStrip(t) {
     return t.split('\n').filter(l => !/^\s*🔗/.test(l) && !/^_Unit Peperiksaan/.test(l.trim()) && !/^\s*file:|^\s*https?:\/\//.test(l)).join('\n')
-        .replace(/[\p{Extended_Pictographic}\uFE0F\u200D]/gu, '').replace(/[ \t]+\n/g, '\n').replace(/\n{3,}/g, '\n\n').replace(/^[ \t]+/gm, m => m).trim();
+        .replace(/~([^~\n]+)~/g, '$1').replace(/(^|\s)_([^_\n]+)_(?=\s|$)/g, '$1$2').replace(/[\p{Extended_Pictographic}\uFE0F\u200D]/gu, '').replace(/[ \t]+\n/g, '\n').replace(/\n{3,}/g, '\n\n').replace(/^[ \t]+/gm, m => m).trim();
 }
 function waDrawImage(text, logo) {
     const W = 1080, P = 76, MW = W - P * 2, F = '"Plus Jakarta Sans",Arial,sans-serif', RED = '#c8102e', BLK = '#111111';
