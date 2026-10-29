@@ -1260,6 +1260,10 @@ window.addEventListener('message', ev => {
                 <select id="kp-waktu" class="opr-in" onchange="kpSet('waktu',this.value);kpRender()"></select>
                 <input id="kp-wlain" class="opr-in hidden" placeholder="Taip masa ambil kertas" oninput="kpSet('waktuLain',this.value)">
                 <div id="kp-rows" class="space-y-2"></div>
+                <details class="rounded-xl border border-slate-200 px-3 py-2 text-xs"><summary class="font-bold text-slate-500 cursor-pointer">Tambah senarai nama guru</summary>
+                    <textarea id="kp-paste" rows="4" class="opr-in mt-2" placeholder="Tampal nama guru, satu nama setiap baris (nama ringkas pun boleh)"></textarea>
+                    <button type="button" onclick="kpPaste()" class="mt-2 px-3 py-2 rounded-lg bg-sky-500 text-white font-extrabold">Simpan nama</button>
+                </details>
                 <button type="button" onclick="kpAdd()" class="w-full py-2.5 rounded-xl border-2 border-dashed border-sky-300 text-sky-600 text-xs font-extrabold hover:bg-sky-50"><i class="fa-solid fa-plus mr-1"></i> Tambah guru</button>
                 <textarea id="kp-text" rows="9" class="opr-in" style="font-family:inherit;line-height:1.5"></textarea>
             </div>
@@ -1515,6 +1519,7 @@ const WA_FOOT = '\n\n_Unit Peperiksaan & Penilaian SMK Karak_';
 function waOpen() { oprNeedAdmin(() => { sfx('click'); waPick(waTpl, true); byId('wa-img-panel').classList.add('hidden'); byId('wa-main').classList.remove('hidden'); byId('wa-foot').classList.remove('hidden'); oprShow('wa-modal'); }); }
 function waClose() { byId('wa-modal').classList.add('hidden'); document.body.style.overflow = ''; }
 function waPick(t, silent) {
+    waTable = null;
     if (t === 'kertas') { waClose(); kpOpen(); return; }
     waTpl = t; if (!silent) sfx('click');
     byId('wa-chips').innerHTML = WA_T.map(x => `<button type="button" class="wa-chip ${x[0] === t ? 'on' : ''}" style="--c:${x[2]}" onclick="waPick('${x[0]}')"><i class="fa-solid ${x[3]} mr-1"></i>${x[1]}</button>`).join('');
@@ -1600,6 +1605,11 @@ function kpSel(i, f, val, custom, ph, list, other) {
 }
 const kpKelas = () => SENARAI_KELAS.length ? SENARAI_KELAS : KP_DEF_KELAS;
 function kpGrp() { const r = KP.rows.find(r => /^[345]\b/.test((r.kelas || '').trim())), q = KP.rows.find(r => (r.kelas || '').trim()); return r ? 1 : (q ? 0 : +KP.grp || 0); }
+function kpPaste() {
+    const t = byId('kp-paste').value.split('\n').map(x => x.trim().replace(/^\d+[.)\s]+/, '')).filter(Boolean); let n = 0;
+    t.forEach(x => { if (!kpNames().includes(x)) { KP_EXTRA.push(x); n++; } });
+    kpSave(); byId('kp-paste').value = ''; kpRender(); sfx('ok'); oprToast(n + ' nama ditambah');
+}
 function kpLearn(n) { n = (n || '').trim(); if (n && !kpNames().includes(n)) { KP_EXTRA.push(n); kpSave(); } }
 function kpRender() {
     byId('kp-ex').innerHTML = EXAMS.map((x, i) => `<option value="${i}" ${i === +KP.ex ? 'selected' : ''}>${esc(x[0])}</option>`).join('');
@@ -1639,10 +1649,16 @@ function kpCopy() {
     if (navigator.clipboard) navigator.clipboard.writeText(v).catch(fb); else fb();
     sfx('ok'); oprToast('Senarai disalin');
 }
+function kpData() {
+    const x = EXAMS[+KP.ex] || EXAMS[0], d = ymdParse(KP.tarikh), HR = ['Ahad', 'Isnin', 'Selasa', 'Rabu', 'Khamis', 'Jumaat', 'Sabtu'];
+    const masa = KP.waktu === '__lain__' ? (KP.waktuLain || '').trim() : (KP_MASA[kpGrp()][+KP.waktu] ? `Waktu ${+KP.waktu + 1} (${KP_MASA[kpGrp()][+KP.waktu]})` : '');
+    return { title: 'SENARAI AMBIL KERTAS ' + x[0], tgl: d ? `${HR[d.getDay()]}, ${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()}` : '', masa: masa ? 'Ambil kertas: ' + masa : '', tempat: 'Tempat: Bilik UPP',
+        rows: KP.rows.filter(r => r.nama || r.relief).map(r => ({ nama: r.nama || '(guru)', kelas: r.kelas || '', kertas: r.ket || '', hadir: r.hadir, relief: r.relief || '(belum ditetapkan)' })) };
+}
 function kpToWa() {
     const v = byId('kp-text').value; if (!v) { oprToast('Senarai kosong', '#f43f5e'); return; }
-    kpClose(); waTpl = 'bebas'; waPick('bebas', true); byId('wa-text').value = v;
-    byId('wa-img-panel').classList.add('hidden'); byId('wa-main').classList.remove('hidden'); byId('wa-foot').classList.remove('hidden'); oprShow('wa-modal'); sfx('click');
+    kpClose(); waTpl = 'bebas'; waPick('bebas', true); byId('wa-text').value = v; waTable = kpData();
+    byId('wa-img-panel').classList.add('hidden'); byId('wa-main').classList.remove('hidden'); byId('wa-foot').classList.remove('hidden'); oprShow('wa-modal'); waImage();
 }
 </script>
 <script>
@@ -1719,13 +1735,65 @@ function waDrawImage(text, logo) {
     c.fillStyle = BLK; c.font = font(700, 24); c.textAlign = 'center'; c.fillText('Unit Peperiksaan & Penilaian SMK Karak', W / 2, H - 62); c.textAlign = 'left';
     return cv;
 }
+let waTable = null;
+function waDrawTable(T, logo) {
+    const W = 1080, P = 56, MW = W - P * 2, F = '"Plus Jakarta Sans",Arial,sans-serif', RED = '#c8102e', BLK = '#111111';
+    const cv = document.createElement('canvas'), c = cv.getContext('2d'), font = (w, sz) => `${w} ${sz}px ${F}`;
+    const hasR = T.rows.some(r => !r.hadir);
+    const cw = hasR ? [64, 230, 170, 300, 196] : [64, 290, 200, 406], hd = hasR ? ['Bil', 'Nama Guru', 'Kelas', 'Kertas', 'Guru Relief'] : ['Bil', 'Nama Guru', 'Kelas', 'Kertas'];
+    const wrap = (txt, mw, f) => { c.font = f; const out = []; let cur = ''; String(txt || '').split(' ').forEach(w => { const t = cur ? cur + ' ' + w : w; if (c.measureText(t).width > mw && cur) { out.push(cur); cur = w; } else cur = t; }); if (cur) out.push(cur); return out.length ? out : ['']; };
+    const FS = 24, LH = 32, PAD = 14;
+    function layout(draw) {
+        let y = P + 180;
+        c.font = font(800, 26); const tw = c.measureText(T.title).width + 44;
+        if (draw) { c.strokeStyle = RED; c.lineWidth = 3; c.beginPath(); c.roundRect(P, y, tw, 52, 26); c.stroke(); c.fillStyle = RED; c.fillText(T.title, P + 22, y + 36); }
+        y += 52 + 22;
+        [T.tgl, T.masa, T.tempat].filter(Boolean).forEach(l => { if (draw) { c.fillStyle = BLK; c.font = font(600, 30); c.fillText(l, P, y + 28); } y += 42; });
+        y += 14;
+        if (draw) { c.fillStyle = RED; c.fillRect(P, y, MW, 56); c.fillStyle = '#fff'; c.font = font(800, 23); let x = P; hd.forEach((h, i) => { c.fillText(h, x + PAD, y + 37); x += cw[i]; }); }
+        y += 56;
+        T.rows.forEach((r, ri) => {
+            const cells = [[String(ri + 1)], wrap(r.nama, cw[1] - PAD * 2, font(700, FS)), wrap(r.kelas, cw[2] - PAD * 2, font(500, FS)), wrap(r.kertas, cw[3] - PAD * 2, font(500, 21))];
+            if (hasR) cells.push(wrap(r.hadir ? '-' : r.relief, cw[4] - PAD * 2, font(800, FS)));
+            const n = Math.max(...cells.map(a => a.length)), h = n * LH + PAD * 2;
+            if (draw) {
+                c.fillStyle = r.hadir ? (ri % 2 ? '#f8fafc' : '#fff') : '#fff1f2'; c.fillRect(P, y, MW, h);
+                let x = P;
+                cells.forEach((ln, ci) => {
+                    c.font = ci === 0 ? font(800, FS) : ci === 1 ? font(700, FS) : ci === 3 ? font(500, 21) : ci === 4 ? font(800, FS) : font(500, FS);
+                    c.fillStyle = ci === 4 ? RED : (!r.hadir && ci === 1 ? '#94a3b8' : BLK);
+                    ln.forEach((t, li) => { const ty = y + PAD + li * LH + 24; c.fillText(t, x + PAD, ty); if (ci === 1 && !r.hadir) { c.fillRect(x + PAD, ty - 8, c.measureText(t).width, 2.5); } });
+                    x += cw[ci];
+                });
+                c.strokeStyle = '#e2e8f0'; c.lineWidth = 2; c.beginPath(); c.moveTo(P, y + h); c.lineTo(P + MW, y + h); c.stroke();
+            }
+            y += h;
+        });
+        return y;
+    }
+    cv.width = W; cv.height = 4000; c.textBaseline = 'alphabetic';
+    const end = layout(false), H = Math.max(900, Math.round(end + 190));
+    cv.width = W; cv.height = H; c.textBaseline = 'alphabetic';
+    c.fillStyle = '#fff'; c.fillRect(0, 0, W, H);
+    c.fillStyle = RED; c.fillRect(0, 0, W, 22); c.fillRect(0, H - 22, W, 22);
+    if (logo) c.drawImage(logo, P, P - 10, 130, 130);
+    c.fillStyle = BLK; c.font = font(800, 30); c.fillText('SEKOLAH MENENGAH KEBANGSAAN KARAK', P + 156, P + 40);
+    c.fillStyle = RED; c.font = font(800, 25); c.fillText('UNIT PEPERIKSAAN & PENILAIAN', P + 156, P + 82);
+    c.fillStyle = RED; c.fillRect(P, P + 140, MW, 6);
+    const yEnd = layout(true);
+    c.fillStyle = BLK; c.font = font(500, 22); c.textAlign = 'left';
+    c.fillText('Sila ambil kertas tepat pada masa. Guru relief, sila ambil bagi pihak guru yang tidak hadir.', P, yEnd + 44);
+    c.fillStyle = RED; c.fillRect(P, H - 110, MW, 3);
+    c.fillStyle = BLK; c.font = font(700, 24); c.textAlign = 'center'; c.fillText('Unit Peperiksaan & Penilaian SMK Karak', W / 2, H - 62); c.textAlign = 'left';
+    return cv;
+}
 async function waImage() {
     const txt = byId('wa-text').value.trim(); if (!txt) { oprToast('Mesej kosong', '#f43f5e'); return; }
     sfx('click');
     try { await document.fonts.load('800 30px "Plus Jakarta Sans"'); await document.fonts.load('500 30px "Plus Jakarta Sans"'); } catch (e) {}
     const src = (document.querySelector('header img') || {}).src;
     const logo = await new Promise(res => { if (!src) return res(null); const im = new Image(); im.onload = () => res(im); im.onerror = () => res(null); im.src = src; });
-    const cv = waDrawImage(txt, logo);
+    const cv = waTable ? waDrawTable(waTable, logo) : waDrawImage(txt, logo);
     cv.toBlob(b => { waBlob = b; byId('wa-img').src = URL.createObjectURL(b); byId('wa-main').classList.add('hidden'); byId('wa-foot').classList.add('hidden'); byId('wa-img-panel').classList.remove('hidden'); sfx('ok'); }, 'image/png');
 }
 function waImgBack() { sfx('click'); byId('wa-img-panel').classList.add('hidden'); byId('wa-main').classList.remove('hidden'); byId('wa-foot').classList.remove('hidden'); }
