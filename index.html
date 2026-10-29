@@ -1257,12 +1257,8 @@ window.addEventListener('message', ev => {
                     <select id="kp-ex" class="opr-in" onchange="kpSet('ex',this.value)"></select>
                     <input id="kp-tarikh" type="date" class="opr-in" oninput="kpSet('tarikh',this.value)">
                 </div>
-                <div class="grid grid-cols-2 gap-2">
-                    <select id="kp-grp" class="opr-in" onchange="kpSet('grp',this.value);kpRender()"><option value="0">Peralihan, T1 &amp; T2</option><option value="1">T3, T4 &amp; T5</option></select>
-                    <select id="kp-waktu" class="opr-in" onchange="kpSet('waktu',this.value);kpRender()"></select>
-                </div>
+                <select id="kp-waktu" class="opr-in" onchange="kpSet('waktu',this.value);kpRender()"></select>
                 <input id="kp-wlain" class="opr-in hidden" placeholder="Taip masa ambil kertas" oninput="kpSet('waktuLain',this.value)">
-                <input id="kp-info" class="opr-in" placeholder="Tempat ambil kertas" oninput="kpSet('info',this.value)">
                 <div id="kp-rows" class="space-y-2"></div>
                 <button type="button" onclick="kpAdd()" class="w-full py-2.5 rounded-xl border-2 border-dashed border-sky-300 text-sky-600 text-xs font-extrabold hover:bg-sky-50"><i class="fa-solid fa-plus mr-1"></i> Tambah guru</button>
                 <textarea id="kp-text" rows="9" class="opr-in" style="font-family:inherit;line-height:1.5"></textarea>
@@ -1603,12 +1599,13 @@ function kpSel(i, f, val, custom, ph, list, other) {
     return `<select class="opr-in" onchange="kpPick(${i},'${f}',this.value)"><option value="">${ph}</option>${L.map(n => `<option ${n === val ? 'selected' : ''}>${esc(n)}</option>`).join('')}<option value="__baru__">${O}</option></select>`;
 }
 const kpKelas = () => SENARAI_KELAS.length ? SENARAI_KELAS : KP_DEF_KELAS;
+function kpGrp() { const r = KP.rows.find(r => /^[345]\b/.test((r.kelas || '').trim())), q = KP.rows.find(r => (r.kelas || '').trim()); return r ? 1 : (q ? 0 : +KP.grp || 0); }
 function kpLearn(n) { n = (n || '').trim(); if (n && !kpNames().includes(n)) { KP_EXTRA.push(n); kpSave(); } }
 function kpRender() {
     byId('kp-ex').innerHTML = EXAMS.map((x, i) => `<option value="${i}" ${i === +KP.ex ? 'selected' : ''}>${esc(x[0])}</option>`).join('');
-    byId('kp-tarikh').value = KP.tarikh; byId('kp-info').value = KP.info; byId('kp-grp').value = String(KP.grp);
-    byId('kp-waktu').innerHTML = KP_MASA[+KP.grp].map((m, i) => `<option value="${i}">Waktu ${i + 1} • ${m}</option>`).join('') + '<option value="__lain__">Lain-lain (tulis)</option>';
-    byId('kp-waktu').value = KP.waktu === '__lain__' || +KP.waktu < KP_MASA[+KP.grp].length ? KP.waktu : '0'; if (byId('kp-waktu').value !== KP.waktu) KP.waktu = byId('kp-waktu').value;
+    byId('kp-tarikh').value = KP.tarikh; 
+    byId('kp-waktu').innerHTML = KP_MASA[kpGrp()].map((m, i) => `<option value="${i}">Waktu ${i + 1} • ${m}</option>`).join('') + '<option value="__lain__">Lain-lain (tulis)</option>';
+    byId('kp-waktu').value = KP.waktu === '__lain__' || +KP.waktu < KP_MASA[kpGrp()].length ? KP.waktu : '0'; if (byId('kp-waktu').value !== KP.waktu) KP.waktu = byId('kp-waktu').value;
     byId('kp-wlain').classList.toggle('hidden', KP.waktu !== '__lain__'); byId('kp-wlain').value = KP.waktuLain || '';
     byId('kp-rows').innerHTML = KP.rows.map((r, i) => `<div class="rounded-2xl p-3 border-2 space-y-2 ${r.hadir ? 'border-sky-100 bg-sky-50/50' : 'border-rose-200 bg-rose-50/60'}">
         <div class="flex items-center gap-2"><span class="w-6 h-6 rounded-full bg-sky-500 text-white text-[11px] font-extrabold flex items-center justify-center shrink-0">${i + 1}</span><div class="flex-1 min-w-0">${kpSel(i, 'nama', r.nama, r.cNama, 'Pilih nama guru')}</div><button type="button" onclick="kpDel(${i})" class="w-8 h-8 rounded-full text-slate-400 hover:text-rose-500 hover:bg-rose-50 shrink-0" aria-label="Buang"><i class="fa-solid fa-trash-can"></i></button></div>
@@ -1618,21 +1615,21 @@ function kpRender() {
     kpBuild();
 }
 function kpSet(f, v, i) { if (i === undefined) { KP[f] = v; } else KP.rows[i][f] = v; kpSave(); if (i === undefined || ['ket', 'nama', 'relief', 'kelas', 'grp', 'waktu', 'waktuLain', 'info', 'ex', 'tarikh'].includes(f)) kpBuild(); }
-function kpPick(i, f, v) { const r = KP.rows[i], c = f === 'nama' ? 'cNama' : f === 'kelas' ? 'cKelas' : f === 'ket' ? 'cKet' : 'cRelief'; if (v === '__baru__') { r[c] = true; r[f] = ''; kpRender(); } else { r[f] = v; kpBuild(); kpSave(); } sfx('click'); }
+function kpPick(i, f, v) { const r = KP.rows[i], c = f === 'nama' ? 'cNama' : f === 'kelas' ? 'cKelas' : f === 'ket' ? 'cKet' : 'cRelief'; if (v === '__baru__') { r[c] = true; r[f] = ''; kpRender(); } else { r[f] = v; kpSave(); f === 'kelas' ? kpRender() : kpBuild(); } sfx('click'); }
 function kpHadir(i) { const r = KP.rows[i]; r.hadir = !r.hadir; if (r.hadir) { r.relief = ''; r.cRelief = false; } sfx('click'); kpSave(); kpRender(); }
 function kpAdd() { KP.rows.push({ nama: '', ket: '', hadir: true, relief: '' }); sfx('click'); kpSave(); kpRender(); }
 function kpDel(i) { KP.rows.splice(i, 1); sfx('click'); kpSave(); kpRender(); }
 function kpBuild() {
     const x = EXAMS[+KP.ex] || EXAMS[0], d = ymdParse(KP.tarikh), HR = ['Ahad', 'Isnin', 'Selasa', 'Rabu', 'Khamis', 'Jumaat', 'Sabtu'];
     const tgl = d ? `${HR[d.getDay()]}, ${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()}` : '';
-    const masa = KP.waktu === '__lain__' ? (KP.waktuLain || '').trim() : (KP_MASA[+KP.grp][+KP.waktu] ? `Waktu ${+KP.waktu + 1} (${KP_MASA[+KP.grp][+KP.waktu]})` : '');
+    const masa = KP.waktu === '__lain__' ? (KP.waktuLain || '').trim() : (KP_MASA[kpGrp()][+KP.waktu] ? `Waktu ${+KP.waktu + 1} (${KP_MASA[kpGrp()][+KP.waktu]})` : '');
     const rows = KP.rows.filter(r => r.nama || r.relief);
     const lines = rows.map((r, i) => {
         const k = (r.kelas || r.ket) ? ` – ${[r.kelas, r.ket].filter(Boolean).join(' • ')}` : '';
         if (r.hadir) return `${i + 1}. ${r.nama}${k}`;
         return `${i + 1}. ~${r.nama || '(guru)'}~ _(tidak hadir)_\n     🔁 Relief: *${r.relief || '(belum ditetapkan)'}*${k}`;
     });
-    byId('kp-text').value = rows.length ? `📋 *SENARAI AMBIL KERTAS ${x[0]}*\n${tgl ? '📅 ' + tgl + '\n' : ''}${masa ? '⏰ Ambil kertas: ' + masa + '\n' : ''}${KP.info ? '📍 ' + KP.info + '\n' : ''}\n${lines.join('\n')}\n\nSila ambil kertas tepat pada masa. Guru relief, sila ambil bagi pihak guru yang tidak hadir. Terima kasih.${WA_FOOT}` : '';
+    byId('kp-text').value = rows.length ? `📋 *SENARAI AMBIL KERTAS ${x[0]}*\n${tgl ? '📅 ' + tgl + '\n' : ''}${masa ? '⏰ Ambil kertas: ' + masa + '\n' : ''}📍 Bilik UPP\n\n${lines.join('\n')}\n\nSila ambil kertas tepat pada masa. Guru relief, sila ambil bagi pihak guru yang tidak hadir. Terima kasih.${WA_FOOT}` : '';
 }
 function kpOpen() { oprNeedAdmin(() => { if (!KP.tarikh) KP.tarikh = ymd(new Date()); if (!KP.rows.length) KP.rows.push({ nama: '', ket: '', hadir: true, relief: '' }); sfx('click'); kpRender(); oprShow('kp-modal'); }); }
 function kpClose() { byId('kp-modal').classList.add('hidden'); document.body.style.overflow = ''; }
