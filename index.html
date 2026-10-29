@@ -1259,12 +1259,14 @@ window.addEventListener('message', ev => {
                 </div>
                 <select id="kp-waktu" class="opr-in" onchange="kpSet('waktu',this.value);kpRender()"></select>
                 <input id="kp-wlain" class="opr-in hidden" placeholder="Taip masa ambil kertas" oninput="kpSet('waktuLain',this.value)">
+                <div class="flex items-center gap-2 text-xs font-bold text-slate-500 px-1"><i class="fa-solid fa-location-dot text-sky-500"></i> Tempat: Bilik UPP</div>
+                <select id="kp-kertas" class="opr-in" onchange="kpKertas(this.value)"></select>
+                <input id="kp-klain" class="opr-in hidden" placeholder="Tulis nama kertas" oninput="kpSet('kertas',this.value)">
                 <div id="kp-rows" class="space-y-2"></div>
-                <details class="rounded-xl border border-slate-200 px-3 py-2 text-xs"><summary class="font-bold text-slate-500 cursor-pointer">Tambah senarai nama guru</summary>
-                    <textarea id="kp-paste" rows="4" class="opr-in mt-2" placeholder="Tampal nama guru, satu nama setiap baris (nama ringkas pun boleh)"></textarea>
-                    <button type="button" onclick="kpPaste()" class="mt-2 px-3 py-2 rounded-lg bg-sky-500 text-white font-extrabold">Simpan nama</button>
-                </details>
-                <button type="button" onclick="kpAdd()" class="w-full py-2.5 rounded-xl border-2 border-dashed border-sky-300 text-sky-600 text-xs font-extrabold hover:bg-sky-50"><i class="fa-solid fa-plus mr-1"></i> Tambah guru</button>
+                                <div class="grid grid-cols-3 gap-2">
+                    <button type="button" onclick="kpAdd()" class="col-span-2 py-2.5 rounded-xl border-2 border-dashed border-sky-300 text-sky-600 text-xs font-extrabold hover:bg-sky-50"><i class="fa-solid fa-plus mr-1"></i> Tambah guru</button>
+                    <button type="button" onclick="kpClear()" class="py-2.5 rounded-xl border-2 border-slate-200 text-slate-500 text-xs font-extrabold hover:border-rose-300 hover:text-rose-500"><i class="fa-solid fa-rotate mr-1"></i> Kosongkan</button>
+                </div>
                 <textarea id="kp-text" rows="9" class="opr-in" style="font-family:inherit;line-height:1.5"></textarea>
             </div>
             <div class="px-5 py-3 border-t border-slate-100 bg-slate-50 grid grid-cols-2 gap-2 shrink-0">
@@ -1590,9 +1592,9 @@ const KP_DEF_KELAS = ['PERALIHAN A'].concat(
     [1, 2, 3].flatMap(t => ['INSPIRASI', 'INTELEK', 'ILMIAH', 'ILHAM', 'INOVATIF', 'INSENTIF'].map(k => t + ' ' + k)),
     [4, 5].flatMap(t => ['SN', 'EA', 'SP', 'SG', 'SS', 'T1', 'T2', 'PVMA'].map(k => t + ' ' + k)));
 const KP_KERTAS = ["AMALAN BAHASA MELAYU (101)", "ASAS SAINS KOMPUTER (70)", "BAHASA CINA (6351)", "BAHASA CINA KERTAS 1 (6351/1)", "BAHASA CINA KERTAS 2 (6351/2)", "BAHASA CINA KERTAS 3 (6351/3)", "BAHASA CINA KERTAS 4 (6351/4)", "BAHASA INGGERIS KERTAS 1 (1119/1)", "BAHASA INGGERIS KERTAS 2 (1119/2)", "BAHASA INGGERIS KERTAS 3 (1119/3)", "BAHASA INGGERIS KERTAS 4 (1119/4)", "BAHASA MELAYU KERTAS 1 (1103/1)", "BAHASA MELAYU KERTAS 2 (1103/2)", "BAHASA MELAYU KERTAS 3 (1103/3)", "BAHASA MELAYU KERTAS 4 (1103/4)", "BAHASA TAMIL (6354)", "BAHASA TAMIL KERTAS 1 (6354/1)", "BAHASA TAMIL KERTAS 2 (6354/2)", "BAHASA TAMIL KERTAS 3 (6354/3)", "BAHASA TAMIL KERTAS 4 (6354/4)", "BIOLOGI KERTAS 1 (4551/1)", "BIOLOGI KERTAS 2 (4551/2)", "BIOLOGI KERTAS 3 (4551/3)", "EKONOMI KERTAS 1 (3767/1)", "EKONOMI KERTAS 2 (3767/2)", "FIZIK KERTAS 1 (4531/1)", "FIZIK KERTAS 2 (4531/2)", "FIZIK KERTAS 3 (4531/3)", "GEOGRAFI (23)", "GEOGRAFI KERTAS 1 (23/1)", "GEOGRAFI KERTAS 2 (23/2)", "GRAFIK KOMUNIKASI TEKNIKAL KERTAS 1 (3771/1)", "GRAFIK KOMUNIKASI TEKNIKAL KERTAS 2 (3771/2)", "KESUSASTERAAN TAMIL KERTAS 1 (9217/1)", "KESUSASTERAAN TAMIL KERTAS 2 (9217/2)", "KIMIA KERTAS 1 (4541/1)", "KIMIA KERTAS 2 (4541/2)", "KIMIA KERTAS 3 (4541/3)", "MATEMATIK (1449)", "MATEMATIK KERTAS 1 (1449/1)", "MATEMATIK KERTAS 2 (1449/2)", "MATEMATIK TAMBAHAN KERTAS 1 (3472/1)", "MATEMATIK TAMBAHAN KERTAS 2 (3472/2)", "PENDIDIKAN ISLAM (1223)", "PENDIDIKAN ISLAM KERTAS 1 (1223/1)", "PENDIDIKAN ISLAM KERTAS 2 (1223/2)", "PENDIDIKAN JASMANI DAN KESIHATAN", "PENDIDIKAN MORAL KERTAS 1 (1225/1)", "PENDIDIKAN MORAL KERTAS 2 (1225/2)", "PENDIDIKAN SENI VISUAL KERTAS 1 (2611/1)", "PENDIDIKAN SENI VISUAL KERTAS 2 (2611/2)", "PENDIDIKAN SENI VISUAL KERTAS 3 (2611/3)", "PERNIAGAAN KERTAS 1 (3766/1)", "PERNIAGAAN KERTAS 2 (3766/2)", "PRINSIP PERAKAUNAN KERTAS 1 (3756/1)", "PRINSIP PERAKAUNAN KERTAS 2 (3756/2)", "PRINSIP PERAKAUNAN KERTAS 3 (3756/3)", "REKA BENTUK DAN TEKNOLOGI (71)", "SAINS (1511)", "SAINS KERTAS 1 (1511/1)", "SAINS KERTAS 2 (1511/2)", "SAINS KOMPUTER KERTAS 1 (3770/1)", "SAINS KOMPUTER KERTAS 2 (3770/2)", "SEJARAH (1249)", "SEJARAH KERTAS 1 (1249/1)", "SEJARAH KERTAS 2 (1249/2)"];
-let KP = { ex: 0, tarikh: '', info: 'Bilik UPP', grp: 0, waktu: '0', waktuLain: '', rows: [] }, KP_EXTRA = [];
+let KP = { ex: 0, tarikh: '', info: 'Bilik UPP', grp: 0, waktu: '0', waktuLain: '', kertas: '', rows: [] }, KP_EXTRA = [];
 try { const j = JSON.parse(localStorage.getItem(KP_KEY) || 'null'); if (j && Array.isArray(j.rows)) { KP = Object.assign(KP, j.kp || {}, { rows: j.rows }); if (/pagi/.test(KP.info || '')) KP.info = 'Bilik UPP'; KP_EXTRA = j.extra || []; } } catch (e) {}
-function kpSave() { try { localStorage.setItem(KP_KEY, JSON.stringify({ kp: { ex: KP.ex, info: KP.info, grp: KP.grp, waktu: KP.waktu, waktuLain: KP.waktuLain }, rows: KP.rows, extra: KP_EXTRA })); } catch (e) {} }
+function kpSave() { try { localStorage.setItem(KP_KEY, JSON.stringify({ kp: { ex: KP.ex, info: KP.info, grp: KP.grp, waktu: KP.waktu, waktuLain: KP.waktuLain, kertas: KP.kertas }, rows: KP.rows, extra: KP_EXTRA })); } catch (e) {} }
 function kpNames() {
     const set = new Set(); const add = n => { n = (n || '').trim(); if (n) set.add(n); };
     SENARAI.forEach(add); (window.JK_ROWS || []).forEach(r => add(r.nama)); DUTY.forEach(d => add(d.nama)); KP_EXTRA.forEach(add);
@@ -1605,29 +1607,29 @@ function kpSel(i, f, val, custom, ph, list, other) {
 }
 const kpKelas = () => SENARAI_KELAS.length ? SENARAI_KELAS : KP_DEF_KELAS;
 function kpGrp() { const r = KP.rows.find(r => /^[345]\b/.test((r.kelas || '').trim())), q = KP.rows.find(r => (r.kelas || '').trim()); return r ? 1 : (q ? 0 : +KP.grp || 0); }
-function kpPaste() {
-    const t = byId('kp-paste').value.split('\n').map(x => x.trim().replace(/^\d+[.)\s]+/, '')).filter(Boolean); let n = 0;
-    t.forEach(x => { if (!kpNames().includes(x)) { KP_EXTRA.push(x); n++; } });
-    kpSave(); byId('kp-paste').value = ''; kpRender(); sfx('ok'); oprToast(n + ' nama ditambah');
-}
 function kpLearn(n) { n = (n || '').trim(); if (n && !kpNames().includes(n)) { KP_EXTRA.push(n); kpSave(); } }
 function kpRender() {
     byId('kp-ex').innerHTML = EXAMS.map((x, i) => `<option value="${i}" ${i === +KP.ex ? 'selected' : ''}>${esc(x[0])}</option>`).join('');
     byId('kp-tarikh').value = KP.tarikh; 
     byId('kp-waktu').innerHTML = KP_MASA[kpGrp()].map((m, i) => `<option value="${i}">Waktu ${i + 1} • ${m}</option>`).join('') + '<option value="__lain__">Lain-lain (tulis)</option>';
     byId('kp-waktu').value = KP.waktu === '__lain__' || +KP.waktu < KP_MASA[kpGrp()].length ? KP.waktu : '0'; if (byId('kp-waktu').value !== KP.waktu) KP.waktu = byId('kp-waktu').value;
+    const kk = KP_KERTAS.includes(KP.kertas) || !KP.kertas ? KP.kertas : '__lain__';
+    byId('kp-kertas').innerHTML = '<option value="">Pilih kertas / matapelajaran</option>' + KP_KERTAS.map(k => `<option ${k === KP.kertas ? 'selected' : ''}>${esc(k)}</option>`).join('') + '<option value="__lain__">Lain-lain (tulis)…</option>';
+    byId('kp-kertas').value = kk; byId('kp-klain').classList.toggle('hidden', kk !== '__lain__'); if (kk === '__lain__') byId('kp-klain').value = KP.kertas;
     byId('kp-wlain').classList.toggle('hidden', KP.waktu !== '__lain__'); byId('kp-wlain').value = KP.waktuLain || '';
     byId('kp-rows').innerHTML = KP.rows.map((r, i) => `<div class="rounded-2xl p-3 border-2 space-y-2 ${r.hadir ? 'border-sky-100 bg-sky-50/50' : 'border-rose-200 bg-rose-50/60'}">
-        <div class="flex items-center gap-2"><span class="w-6 h-6 rounded-full bg-sky-500 text-white text-[11px] font-extrabold flex items-center justify-center shrink-0">${i + 1}</span><div class="flex-1 min-w-0">${kpSel(i, 'nama', r.nama, r.cNama, 'Pilih nama guru')}</div><button type="button" onclick="kpDel(${i})" class="w-8 h-8 rounded-full text-slate-400 hover:text-rose-500 hover:bg-rose-50 shrink-0" aria-label="Buang"><i class="fa-solid fa-trash-can"></i></button></div>
-        <div class="grid grid-cols-1 gap-2">${kpSel(i, 'kelas', r.kelas || '', r.cKelas, 'Pilih kelas', kpKelas(), 'Lain-lain (tulis)…')}${kpSel(i, 'ket', r.ket || '', r.cKet, 'Pilih kertas', KP_KERTAS, 'Lain-lain (tulis)…')}</div>
+        <div class="flex items-center gap-2"><span class="w-6 h-6 rounded-full bg-sky-500 text-white text-[11px] font-extrabold flex items-center justify-center shrink-0">${i + 1}</span><div class="flex-1 min-w-0"><input class="opr-in kp-nm" placeholder="Nama guru" value="${esc(r.nama)}" oninput="kpSet('nama',this.value,${i})"></div><button type="button" onclick="kpDel(${i})" class="w-8 h-8 rounded-full text-slate-400 hover:text-rose-500 hover:bg-rose-50 shrink-0" aria-label="Buang"><i class="fa-solid fa-trash-can"></i></button></div>
+        <div>${kpSel(i, 'kelas', r.kelas || '', r.cKelas, 'Pilih kelas', kpKelas(), 'Lain-lain (tulis)…')}</div>
         <button type="button" onclick="kpHadir(${i})" class="px-3 py-1.5 rounded-full text-[11px] font-extrabold ${r.hadir ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-500 text-white'}"><i class="fa-solid ${r.hadir ? 'fa-user-check' : 'fa-user-xmark'} mr-1"></i>${r.hadir ? 'Hadir' : 'Tidak hadir'}</button>
-        ${r.hadir ? '' : `<div class="flex items-center gap-2"><i class="fa-solid fa-people-arrows text-rose-500"></i><div class="flex-1 min-w-0">${kpSel(i, 'relief', r.relief, r.cRelief, 'Pilih guru relief')}</div></div>`}</div>`).join('') || '<p class="text-xs text-slate-400 text-center py-3">Tekan "Tambah guru" untuk mula.</p>';
+        ${r.hadir ? '' : `<div class="flex items-center gap-2"><i class="fa-solid fa-people-arrows text-rose-500"></i><div class="flex-1 min-w-0"><input class="opr-in" placeholder="Nama guru relief" value="${esc(r.relief)}" oninput="kpSet('relief',this.value,${i})"></div></div>`}</div>`).join('') || '<p class="text-xs text-slate-400 text-center py-3">Tekan "Tambah guru" untuk mula.</p>';
     kpBuild();
 }
 function kpSet(f, v, i) { if (i === undefined) { KP[f] = v; } else KP.rows[i][f] = v; kpSave(); if (i === undefined || ['ket', 'nama', 'relief', 'kelas', 'grp', 'waktu', 'waktuLain', 'info', 'ex', 'tarikh'].includes(f)) kpBuild(); }
 function kpPick(i, f, v) { const r = KP.rows[i], c = f === 'nama' ? 'cNama' : f === 'kelas' ? 'cKelas' : f === 'ket' ? 'cKet' : 'cRelief'; if (v === '__baru__') { r[c] = true; r[f] = ''; kpRender(); } else { r[f] = v; kpSave(); f === 'kelas' ? kpRender() : kpBuild(); } sfx('click'); }
 function kpHadir(i) { const r = KP.rows[i]; r.hadir = !r.hadir; if (r.hadir) { r.relief = ''; r.cRelief = false; } sfx('click'); kpSave(); kpRender(); }
-function kpAdd() { KP.rows.push({ nama: '', ket: '', hadir: true, relief: '' }); sfx('click'); kpSave(); kpRender(); }
+function kpKertas(v) { if (v === '__lain__') { KP.kertas = ' '; kpSave(); kpRender(); byId('kp-klain').value = ''; byId('kp-klain').focus(); } else { KP.kertas = v; kpSave(); kpBuild(); } sfx('click'); }
+function kpClear() { KP.rows = [{ nama: '', kelas: '', hadir: true, relief: '' }]; KP.kertas = ''; sfx('click'); kpSave(); kpRender(); }
+function kpAdd() { KP.rows.push({ nama: '', kelas: (KP.rows[KP.rows.length - 1] || {}).kelas || '', hadir: true, relief: '' }); sfx('click'); kpSave(); kpRender(); const n = document.querySelectorAll('#kp-rows .kp-nm'); if (n.length) n[n.length - 1].focus(); }
 function kpDel(i) { KP.rows.splice(i, 1); sfx('click'); kpSave(); kpRender(); }
 function kpBuild() {
     const x = EXAMS[+KP.ex] || EXAMS[0], d = ymdParse(KP.tarikh), HR = ['Ahad', 'Isnin', 'Selasa', 'Rabu', 'Khamis', 'Jumaat', 'Sabtu'];
@@ -1635,11 +1637,11 @@ function kpBuild() {
     const masa = KP.waktu === '__lain__' ? (KP.waktuLain || '').trim() : (KP_MASA[kpGrp()][+KP.waktu] ? `Waktu ${+KP.waktu + 1} (${KP_MASA[kpGrp()][+KP.waktu]})` : '');
     const rows = KP.rows.filter(r => r.nama || r.relief);
     const lines = rows.map((r, i) => {
-        const k = (r.kelas || r.ket) ? ` – ${[r.kelas, r.ket].filter(Boolean).join(' • ')}` : '';
+        const k = r.kelas ? ` – ${r.kelas}` : '';
         if (r.hadir) return `${i + 1}. ${r.nama}${k}`;
         return `${i + 1}. ~${r.nama || '(guru)'}~ _(tidak hadir)_\n     🔁 Relief: *${r.relief || '(belum ditetapkan)'}*${k}`;
     });
-    byId('kp-text').value = rows.length ? `📋 *SENARAI AMBIL KERTAS ${x[0]}*\n${tgl ? '📅 ' + tgl + '\n' : ''}${masa ? '⏰ Ambil kertas: ' + masa + '\n' : ''}📍 Bilik UPP\n\n${lines.join('\n')}\n\nSila ambil kertas tepat pada masa. Guru relief, sila ambil bagi pihak guru yang tidak hadir. Terima kasih.${WA_FOOT}` : '';
+    byId('kp-text').value = rows.length ? `📋 *SENARAI AMBIL KERTAS ${x[0]}*\n${tgl ? '📅 ' + tgl + '\n' : ''}${masa ? '⏰ Ambil kertas: ' + masa + '\n' : ''}📍 Bilik UPP\n${KP.kertas.trim() ? '📚 Kertas: ' + KP.kertas.trim() + '\n' : ''}\n${lines.join('\n')}\n\nSila ambil kertas tepat pada masa. Guru relief, sila ambil bagi pihak guru yang tidak hadir. Terima kasih.${WA_FOOT}` : '';
 }
 function kpOpen() { oprNeedAdmin(() => { if (!KP.tarikh) KP.tarikh = ymd(new Date()); if (!KP.rows.length) KP.rows.push({ nama: '', ket: '', hadir: true, relief: '' }); sfx('click'); kpRender(); oprShow('kp-modal'); }); }
 function kpClose() { byId('kp-modal').classList.add('hidden'); document.body.style.overflow = ''; }
@@ -1652,8 +1654,8 @@ function kpCopy() {
 function kpData() {
     const x = EXAMS[+KP.ex] || EXAMS[0], d = ymdParse(KP.tarikh), HR = ['Ahad', 'Isnin', 'Selasa', 'Rabu', 'Khamis', 'Jumaat', 'Sabtu'];
     const masa = KP.waktu === '__lain__' ? (KP.waktuLain || '').trim() : (KP_MASA[kpGrp()][+KP.waktu] ? `Waktu ${+KP.waktu + 1} (${KP_MASA[kpGrp()][+KP.waktu]})` : '');
-    return { title: 'SENARAI AMBIL KERTAS ' + x[0], tgl: d ? `${HR[d.getDay()]}, ${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()}` : '', masa: masa ? 'Ambil kertas: ' + masa : '', tempat: 'Tempat: Bilik UPP',
-        rows: KP.rows.filter(r => r.nama || r.relief).map(r => ({ nama: r.nama || '(guru)', kelas: r.kelas || '', kertas: r.ket || '', hadir: r.hadir, relief: r.relief || '(belum ditetapkan)' })) };
+    return { title: 'SENARAI AMBIL KERTAS ' + x[0], tgl: d ? `${HR[d.getDay()]}, ${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()}` : '', masa: masa ? 'Ambil kertas: ' + masa : '', tempat: 'Tempat: Bilik UPP', kertas: KP.kertas.trim() ? 'Kertas: ' + KP.kertas.trim() : '',
+        rows: KP.rows.filter(r => r.nama || r.relief).map(r => ({ nama: r.nama || '(guru)', kelas: r.kelas || '', hadir: r.hadir, relief: r.relief || '(belum ditetapkan)' })) };
 }
 function kpToWa() {
     const v = byId('kp-text').value; if (!v) { oprToast('Senarai kosong', '#f43f5e'); return; }
@@ -1740,7 +1742,7 @@ function waDrawTable(T, logo) {
     const W = 1080, P = 56, MW = W - P * 2, F = '"Plus Jakarta Sans",Arial,sans-serif', RED = '#c8102e', BLK = '#111111';
     const cv = document.createElement('canvas'), c = cv.getContext('2d'), font = (w, sz) => `${w} ${sz}px ${F}`;
     const hasR = T.rows.some(r => !r.hadir);
-    const cw = hasR ? [64, 230, 170, 300, 196] : [64, 290, 200, 406], hd = hasR ? ['Bil', 'Nama Guru', 'Kelas', 'Kertas', 'Guru Relief'] : ['Bil', 'Nama Guru', 'Kelas', 'Kertas'];
+    const cw = hasR ? [70, 340, 290, 260] : [70, 400, 490], hd = hasR ? ['Bil', 'Nama Guru', 'Kelas', 'Guru Relief'] : ['Bil', 'Nama Guru', 'Kelas'];
     const wrap = (txt, mw, f) => { c.font = f; const out = []; let cur = ''; String(txt || '').split(' ').forEach(w => { const t = cur ? cur + ' ' + w : w; if (c.measureText(t).width > mw && cur) { out.push(cur); cur = w; } else cur = t; }); if (cur) out.push(cur); return out.length ? out : ['']; };
     const FS = 24, LH = 32, PAD = 14;
     function layout(draw) {
@@ -1748,20 +1750,20 @@ function waDrawTable(T, logo) {
         c.font = font(800, 26); const tw = c.measureText(T.title).width + 44;
         if (draw) { c.strokeStyle = RED; c.lineWidth = 3; c.beginPath(); c.roundRect(P, y, tw, 52, 26); c.stroke(); c.fillStyle = RED; c.fillText(T.title, P + 22, y + 36); }
         y += 52 + 22;
-        [T.tgl, T.masa, T.tempat].filter(Boolean).forEach(l => { if (draw) { c.fillStyle = BLK; c.font = font(600, 30); c.fillText(l, P, y + 28); } y += 42; });
+        [T.tgl, T.masa, T.tempat, T.kertas].filter(Boolean).forEach(l => { if (draw) { c.fillStyle = BLK; c.font = font(600, 30); c.fillText(l, P, y + 28); } y += 42; });
         y += 14;
         if (draw) { c.fillStyle = RED; c.fillRect(P, y, MW, 56); c.fillStyle = '#fff'; c.font = font(800, 23); let x = P; hd.forEach((h, i) => { c.fillText(h, x + PAD, y + 37); x += cw[i]; }); }
         y += 56;
         T.rows.forEach((r, ri) => {
-            const cells = [[String(ri + 1)], wrap(r.nama, cw[1] - PAD * 2, font(700, FS)), wrap(r.kelas, cw[2] - PAD * 2, font(500, FS)), wrap(r.kertas, cw[3] - PAD * 2, font(500, 21))];
-            if (hasR) cells.push(wrap(r.hadir ? '-' : r.relief, cw[4] - PAD * 2, font(800, FS)));
+            const cells = [[String(ri + 1)], wrap(r.nama, cw[1] - PAD * 2, font(700, FS)), wrap(r.kelas, cw[2] - PAD * 2, font(500, FS))];
+            if (hasR) cells.push(wrap(r.hadir ? '-' : r.relief, cw[3] - PAD * 2, font(800, FS)));
             const n = Math.max(...cells.map(a => a.length)), h = n * LH + PAD * 2;
             if (draw) {
                 c.fillStyle = r.hadir ? (ri % 2 ? '#f8fafc' : '#fff') : '#fff1f2'; c.fillRect(P, y, MW, h);
                 let x = P;
                 cells.forEach((ln, ci) => {
-                    c.font = ci === 0 ? font(800, FS) : ci === 1 ? font(700, FS) : ci === 3 ? font(500, 21) : ci === 4 ? font(800, FS) : font(500, FS);
-                    c.fillStyle = ci === 4 ? RED : (!r.hadir && ci === 1 ? '#94a3b8' : BLK);
+                    c.font = ci === 0 ? font(800, FS) : ci === 1 ? font(700, FS) : ci === 3 ? font(800, FS) : font(500, FS);
+                    c.fillStyle = ci === 3 ? RED : (!r.hadir && ci === 1 ? '#94a3b8' : BLK);
                     ln.forEach((t, li) => { const ty = y + PAD + li * LH + 24; c.fillText(t, x + PAD, ty); if (ci === 1 && !r.hadir) { c.fillRect(x + PAD, ty - 8, c.measureText(t).width, 2.5); } });
                     x += cw[ci];
                 });
