@@ -268,6 +268,8 @@
                 </div>
 
                 <a href="#takwim" class="px-3 py-2 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 transition">Takwim</a>
+                <a href="#jadual" class="hidden px-3 py-2 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 transition">Jadual</a>
+                <a href="#penjejak" class="hidden px-3 py-2 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 transition">Penjejak</a>
                 <a href="#jawatankuasa" class="px-3 py-2 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 transition">Carta Organisasi</a>
                 <a href="#admin" onclick="adminOpen(event)" class="px-3 py-2 rounded-lg text-amber-300 hover:text-amber-200 hover:bg-slate-800 transition"><i class="fa-solid fa-lock text-[11px] mr-1"></i>Admin</a>
             </nav>
@@ -297,6 +299,8 @@
                 <a href="#drive" class="mnu-i bg-indigo-500/15 text-indigo-300 border-indigo-400/30"><i class="fa-solid fa-folder-open"></i>Folder Dokumen</a>
                 <a href="#opr" class="mnu-i bg-rose-500/15 text-rose-300 border-rose-400/30"><i class="fa-solid fa-file-lines"></i>Laporan OPR</a>
                 <a href="#takwim" class="mnu-i bg-violet-500/15 text-violet-300 border-violet-400/30"><i class="fa-solid fa-calendar-days"></i>Takwim</a>
+                <a href="#jadual" class="hidden mnu-i bg-orange-500/15 text-orange-300 border-orange-400/30"><i class="fa-solid fa-table-list"></i>Jadual Peperiksaan</a>
+                <a href="#penjejak" class="hidden mnu-i bg-teal-500/15 text-teal-300 border-teal-400/30"><i class="fa-solid fa-clipboard-check"></i>Penjejak Serahan</a>
                 <a href="#bertugas" class="mnu-i bg-emerald-500/15 text-emerald-300 border-emerald-400/30"><i class="fa-solid fa-user-clock"></i>Guru Bertugas</a>
                 <a href="#jawatankuasa" class="mnu-i bg-orange-500/15 text-orange-300 border-orange-400/30"><i class="fa-solid fa-sitemap"></i>Carta Organisasi</a>
                 <a href="#admin" onclick="adminOpen(event)" class="mnu-i col-span-2 bg-amber-500/15 text-amber-300 border-amber-400/30"><i class="fa-solid fa-lock"></i>Admin</a>
@@ -461,6 +465,7 @@
                 <button type="button" onclick="oprOpenForm()" class="opr-cta rounded-2xl px-4 py-3.5 flex items-center gap-3 text-left"><span class="w-11 h-11 rounded-full bg-white/25 flex items-center justify-center text-lg shrink-0"><i class="fa-solid fa-wand-magic-sparkles"></i></span><span><span class="block font-extrabold text-sm">Jana OPR</span><span class="block text-[11px] text-white/85">Laporan aktiviti program</span></span></button>
                 <button type="button" onclick="waOpen()" class="wa-banner rounded-2xl px-4 py-3.5 flex items-center gap-3 text-left text-white"><span class="w-11 h-11 rounded-full bg-white/25 flex items-center justify-center text-lg shrink-0"><i class="fa-solid fa-comment-dots"></i></span><span><span class="block font-extrabold text-sm">Jana Mesej WhatsApp</span><span class="block text-[11px] text-white/85">Makluman untuk group guru</span></span></button>
                 <button type="button" onclick="kpOpen()" class="rounded-2xl px-4 py-3.5 flex items-center gap-3 text-left text-white sm:col-span-2" style="background:linear-gradient(135deg,#004A5D,#FF4C16);box-shadow:0 8px 18px rgba(14,165,233,.35)"><span class="w-11 h-11 rounded-full bg-white/25 flex items-center justify-center text-lg shrink-0"><i class="fa-solid fa-clipboard-user"></i></span><span><span class="block font-extrabold text-sm">Senarai Ambil Kertas</span><span class="block text-[11px] text-white/85">Guru ambil kertas &amp; guru relief</span></span></button>
+                <button type="button" onclick="prOpen()" class="rounded-2xl px-4 py-3.5 flex items-center gap-3 text-left text-white sm:col-span-2" style="background:linear-gradient(135deg,#F47220,#004A5D);box-shadow:0 8px 18px rgba(244,114,32,.35)"><span class="w-11 h-11 rounded-full bg-white/25 flex items-center justify-center text-lg shrink-0"><i class="fa-solid fa-bell-concierge"></i></span><span><span class="block font-extrabold text-sm">Peringatan Hari Ini</span><span class="block text-[11px] text-white/85">Cadangan mesej WhatsApp ikut takwim, jadual &amp; penjejak</span></span></button>
                 <button type="button" onclick="jjOpen()" class="rounded-2xl px-4 py-3.5 flex items-center gap-3 text-left text-white sm:col-span-2" style="background:linear-gradient(135deg,#F47220,#FF4C16);box-shadow:0 8px 18px rgba(244,114,32,.35)"><span class="w-11 h-11 rounded-full bg-white/25 flex items-center justify-center text-lg shrink-0"><i class="fa-solid fa-calendar-days"></i></span><span><span class="block font-extrabold text-sm">Jana Jadual Peperiksaan</span><span class="block text-[11px] text-white/85">Auto susun ikut waktu sekolah · PDF &amp; gambar</span></span></button>
             </div>
         </section>
@@ -630,6 +635,25 @@
                 </div>
             </div>
             <div id="takwim-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"><p class="text-sm text-slate-500">Memuatkan takwim...</p></div>
+        </section>
+
+        <!-- Section: Jadual Peperiksaan (dari Sheet: jadual) -->
+        <section id="jadual" class="hidden space-y-4">
+            <div>
+                <h3 class="text-xl font-bold text-slate-900 flex items-center gap-2"><i class="fa-solid fa-table-list text-orange-500"></i><span>Jadual Peperiksaan</span></h3>
+                <p class="text-xs sm:text-sm text-slate-500">Tarikh, masa dan matapelajaran mengikut tingkatan</p>
+            </div>
+            <div id="jd-chips" class="space-y-2"></div>
+            <div id="jadual-list" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
+        </section>
+
+        <!-- Section: Penjejak Serahan (dari Sheet: penjejak) -->
+        <section id="penjejak" class="hidden space-y-4">
+            <div>
+                <h3 class="text-xl font-bold text-slate-900 flex items-center gap-2"><i class="fa-solid fa-clipboard-check text-teal-500"></i><span>Penjejak Serahan</span></h3>
+                <p class="text-xs sm:text-sm text-slate-500">Status serahan markah dan kertas soalan oleh panitia</p>
+            </div>
+            <div id="penjejak-list" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
         </section>
 
         <!-- Section: Guru Bertugas (dari Sheet) -->
@@ -1099,10 +1123,118 @@ function renderChart(rows) {
     if (html) box.innerHTML = html;
 }
 
-function renderAll() { try { renderChart(window.JK_ROWS || DEFAULT_JK); } catch (e) { console.error('Carta:', e); } renderAnn(); renderTakwim(); renderDuty(); updateSPMCountdown(); updateDalamanCountdown(); }
+
+// ---- Jadual Peperiksaan (tab: jadual) ----
+let JADUAL = [], JD = { u: '', t: '', p: false };
+const sod = d => new Date(d.getFullYear(), d.getMonth(), d.getDate());
+const dayDiff = d => Math.round((sod(d) - sod(new Date())) / 864e5);
+const fmtTgl = d => `${HARI_BM[d.getDay()]}, ${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()}`;
+function applyJadual(rows) {
+    if (!rows.head || !rows.head.includes('tarikh') || !rows.head.includes('matapelajaran')) return;
+    JADUAL = rows.filter(r => (r.aktif || 'YA').toUpperCase() !== 'TIDAK').map(r => ({ u: r.ujian || '', t: r.tingkatan || '', d: parseDate(r.tarikh), m: r.masa || '', s: r.matapelajaran || '', c: r.catatan || '' }))
+        .filter(x => x.d && x.s).sort((a, b) => a.d - b.d || a.m.localeCompare(b.m));
+}
+function jdSet(k, v) { JD[k] = v; sfx('click'); renderJadual(); }
+function renderJadual() {
+    const sec = byId('jadual'); if (!sec) return;
+    const has = JADUAL.length > 0;
+    sec.classList.toggle('hidden', !has);
+    document.querySelectorAll('a[href="#jadual"]').forEach(a => a.classList.toggle('hidden', !has));
+    if (!has) return;
+    const uniq = k => [...new Set(JADUAL.map(x => x[k]).filter(Boolean))];
+    const us = uniq('u'), ts = uniq('t');
+    if (JD.u && !us.includes(JD.u)) JD.u = '';
+    if (JD.t && !ts.includes(JD.t)) JD.t = '';
+    const chip = (k, v, lab, c) => `<button type="button" class="wa-chip ${JD[k] === v ? 'on' : ''}" style="--c:${c}" onclick="jdSet('${k}','${esc(v).replace(/'/g, '')}')">${esc(lab)}</button>`;
+    byId('jd-chips').innerHTML = (us.length > 1 ? `<div class="flex flex-wrap gap-2">${chip('u', '', 'Semua ujian', '#004A5D')}${us.map(u => chip('u', u, u, '#F47220')).join('')}</div>` : '')
+        + (ts.length > 1 ? `<div class="flex flex-wrap gap-2">${chip('t', '', 'Semua tingkatan', '#004A5D')}${ts.map(t => chip('t', t, t, '#007391')).join('')}</div>` : '')
+        + `<label class="inline-flex items-center gap-2 text-[11px] font-semibold text-slate-500"><input type="checkbox" ${JD.p ? 'checked' : ''} onchange="JD.p=this.checked;renderJadual()"> Tunjuk tarikh yang telah lepas</label>`;
+    let list = JADUAL.filter(x => (!JD.u || x.u === JD.u) && (!JD.t || x.t === JD.t) && (JD.p || dayDiff(x.d) >= 0));
+    const box = byId('jadual-list');
+    if (!list.length) { box.innerHTML = '<p class="text-sm text-slate-500 md:col-span-2">Tiada jadual untuk pilihan ini.</p>'; return; }
+    const g = {}; list.forEach(x => { (g[ymd(x.d)] = g[ymd(x.d)] || []).push(x); });
+    box.innerHTML = Object.keys(g).sort().map(k => {
+        const d = ymdParse(k), n = dayDiff(d), rows = g[k];
+        const tag = n === 0 ? ['Hari ini', 'bg-orange-500 text-white'] : n === 1 ? ['Esok', 'bg-amber-100 text-amber-800'] : n < 0 ? ['Selesai', 'bg-slate-100 text-slate-500'] : [`${n} hari lagi`, 'bg-sky-50 text-sky-700'];
+        return `<div class="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-sm flex gap-3 ${n === 0 ? 'ring-2 ring-orange-300' : n < 0 ? 'opacity-60' : ''}">
+            <div class="w-14 shrink-0 text-center rounded-xl bg-orange-50 text-orange-700 py-2"><div class="text-xl font-extrabold leading-none">${d.getDate()}</div><div class="text-[10px] font-bold uppercase mt-0.5">${MON3[d.getMonth()]}</div><div class="text-[9px] font-semibold mt-0.5">${HARI_BM[d.getDay()]}</div></div>
+            <div class="min-w-0 flex-1"><span class="text-[9px] font-bold px-2 py-0.5 rounded-full ${tag[1]}">${tag[0]}</span>
+            <div class="mt-2 space-y-1.5">${rows.map(x => `<div class="text-xs leading-snug"><div class="flex flex-wrap items-center gap-1.5"><span class="font-bold text-slate-800">${esc(x.s)}</span>${x.t ? `<span class="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-cyan-50 text-cyan-700">${esc(x.t)}</span>` : ''}${!JD.u && x.u ? `<span class="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-orange-50 text-orange-700">${esc(x.u)}</span>` : ''}</div><div class="text-[11px] text-slate-500">${x.m ? '<i class="fa-regular fa-clock mr-1"></i>' + esc(x.m) : ''}${x.c ? ' · ' + esc(x.c) : ''}</div></div>`).join('')}</div></div></div>`;
+    }).join('');
+}
+
+// ---- Penjejak Serahan (tab: penjejak) ----
+let PENJEJAK = [];
+const okSt = v => /^(sudah|ya|selesai|done|hantar|siap)/i.test(String(v || '').trim());
+function applyPenjejak(rows) {
+    if (!rows.head || !rows.head.includes('tugasan') || !rows.head.includes('panitia')) return;
+    PENJEJAK = rows.filter(r => (r.aktif || 'YA').toUpperCase() !== 'TIDAK' && r.tugasan && r.panitia)
+        .map(r => ({ t: r.tugasan, j: r.jenis || '', p: r.panitia, d: parseDate(r.tarikh_akhir, true), ok: okSt(r.status), c: r.catatan || '' }));
+}
+function pjGroups() {
+    const g = {}; PENJEJAK.forEach(x => { const k = x.t + '|' + (x.d ? ymd(x.d) : ''); (g[k] = g[k] || { t: x.t, j: x.j, d: x.d, r: [] }).r.push(x); });
+    return Object.values(g).sort((a, b) => (a.d ? a.d : 9e15) - (b.d ? b.d : 9e15));
+}
+function renderPenjejak() {
+    const sec = byId('penjejak'); if (!sec) return;
+    const has = PENJEJAK.length > 0;
+    sec.classList.toggle('hidden', !has);
+    document.querySelectorAll('a[href="#penjejak"]').forEach(a => a.classList.toggle('hidden', !has));
+    if (!has) return;
+    const now = Date.now();
+    byId('penjejak-list').innerHTML = pjGroups().map(G => {
+        const done = G.r.filter(x => x.ok).length, tot = G.r.length, pct = Math.round(done / tot * 100), over = G.d && G.d.getTime() < now, n = G.d ? dayDiff(G.d) : null;
+        const due = !G.d ? '' : done === tot ? 'Lengkap' : over ? `Lewat ${Math.abs(n)} hari` : n === 0 ? 'Akhir hari ini' : `${n} hari lagi`;
+        const dc = done === tot ? 'bg-emerald-100 text-emerald-800' : over ? 'bg-rose-100 text-rose-700' : n !== null && n <= 3 ? 'bg-amber-100 text-amber-800' : 'bg-sky-50 text-sky-700';
+        return `<div class="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-sm">
+            <div class="flex items-start justify-between gap-2"><div class="min-w-0"><h5 class="font-bold text-sm text-slate-800 leading-snug">${esc(G.t)}</h5><p class="text-[11px] text-slate-500 mt-0.5">${G.j ? esc(G.j) + ' · ' : ''}${G.d ? 'Akhir: ' + fmtTgl(G.d) : 'Tiada tarikh akhir'}</p></div>${due ? `<span class="text-[9px] font-bold px-2 py-0.5 rounded-full shrink-0 ${dc}">${due}</span>` : ''}</div>
+            <div class="mt-3 h-2 rounded-full bg-slate-100 overflow-hidden"><div class="h-full rounded-full" style="width:${pct}%;background:linear-gradient(90deg,#F47220,#10b981)"></div></div>
+            <p class="text-[11px] font-bold text-slate-600 mt-1">${done} / ${tot} panitia sudah serah</p>
+            <div class="flex flex-wrap gap-1.5 mt-2">${G.r.map(x => { const c = x.ok ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : over ? 'bg-rose-50 text-rose-700 border-rose-200' : 'bg-amber-50 text-amber-700 border-amber-200'; const ic = x.ok ? 'fa-circle-check' : over ? 'fa-triangle-exclamation' : 'fa-hourglass-half'; return `<span class="text-[10px] font-bold px-2 py-1 rounded-full border ${c}" title="${esc(x.c)}"><i class="fa-solid ${ic} mr-1"></i>${esc(x.p)}</span>`; }).join('')}</div></div>`;
+    }).join('');
+}
+
+// ---- Peringatan Hari Ini (admin) ----
+let PR = [];
+function prBuild() {
+    const out = [], now = Date.now();
+    EVENTS.filter(e => e.jenis !== 'pengumuman' && e.start && (e.end || e.start).getTime() >= now - 864e5).forEach(e => {
+        const n = dayDiff(e.start); if (![3, 1, 0].includes(n)) return;
+        const when = n === 0 ? 'HARI INI' : n === 1 ? 'ESOK' : '3 hari lagi';
+        out.push({ ic: 'fa-calendar-days', c: '#004A5D', t: `${when}: ${e.title}`, x: `📢 *PERINGATAN*\n\n*${e.title}* ${n === 0 ? 'bermula *hari ini*' : n === 1 ? 'bermula *esok*' : 'akan bermula dalam *3 hari*'}.\n📅 ${e.dateStr}${e.desc ? '\n' + e.desc : ''}\n\nSila pastikan semua persediaan lengkap. Terima kasih.` + WA_FOOT });
+    });
+    [0, 1].forEach(off => {
+        const rows = JADUAL.filter(x => dayDiff(x.d) === off); if (!rows.length) return;
+        const d = rows[0].d, txt = rows.map(x => `• ${x.m ? x.m + ' – ' : ''}${x.s}${x.t ? ' (' + x.t + ')' : ''}${x.c ? ' – ' + x.c : ''}`).join('\n');
+        out.push({ ic: 'fa-table-list', c: '#F47220', t: `Jadual ${off ? 'esok' : 'hari ini'} (${rows.length} kertas)`, x: `📝 *JADUAL ${off ? 'ESOK' : 'HARI INI'}*\n📅 ${fmtTgl(d)}\n\n${txt}\n\nGuru bertugas sila ambil kertas di Bilik UPP lebih awal. Terima kasih.` + WA_FOOT });
+    });
+    pjGroups().forEach(G => {
+        const bl = G.r.filter(x => !x.ok); if (!bl.length || !G.d) return;
+        const n = dayDiff(G.d); if (n > 3) return;
+        const lewat = n < 0;
+        out.push({ ic: lewat ? 'fa-triangle-exclamation' : 'fa-hourglass-half', c: lewat ? '#e11d48' : '#d97706', t: `${lewat ? 'Lewat' : 'Hampir tamat'}: ${G.t} (${bl.length} belum serah)`, x: `⏰ *PERINGATAN SERAHAN*\n\n*${G.t}*${G.j ? ' (' + G.j + ')' : ''}\n📅 Tarikh akhir: ${fmtTgl(G.d)}${lewat ? ' _(telah lewat ' + Math.abs(n) + ' hari)_' : n === 0 ? ' _(hari ini)_' : ' _(' + n + ' hari lagi)_'}\n\nPanitia yang belum menyerahkan:\n${bl.map((x, i) => `${i + 1}. ${x.p}`).join('\n')}\n\nSila serahkan segera kepada UPP. Terima kasih.` + WA_FOOT });
+    });
+    return out;
+}
+function prOpen() {
+    oprNeedAdmin(() => {
+        PR = prBuild(); sfx('click');
+        byId('pr-list').innerHTML = PR.length ? PR.map((r, i) => `<div class="rounded-2xl border border-slate-200 p-3 flex items-center gap-3"><span class="w-10 h-10 rounded-full flex items-center justify-center text-white shrink-0" style="background:${r.c}"><i class="fa-solid ${r.ic}"></i></span><div class="min-w-0 flex-1 text-xs font-bold text-slate-800 leading-snug">${esc(r.t)}</div><button type="button" onclick="prSend(${i})" class="wa-chip on shrink-0" style="--c:#25D366"><i class="fa-solid fa-paper-plane mr-1"></i>Hantar</button></div>`).join('')
+            : '<div class="text-center py-8"><div class="text-4xl mb-2">🎉</div><p class="text-sm font-bold text-slate-700">Tiada peringatan untuk hari ini</p><p class="text-[11px] text-slate-500 mt-1">Tiada acara H-3/H-1/hari H, jadual esok atau serahan hampir tamat.</p></div>';
+        oprShow('pr-modal');
+    });
+}
+function prClose() { byId('pr-modal').classList.add('hidden'); document.body.style.overflow = ''; }
+function prSend(i) {
+    const r = PR[i]; if (!r) return;
+    prClose(); waTpl = 'bebas'; waPick('bebas', true); byId('wa-text').value = r.x;
+    byId('wa-img-panel').classList.add('hidden'); byId('wa-main').classList.remove('hidden'); byId('wa-foot').classList.remove('hidden'); oprShow('wa-modal'); sfx('ok');
+}
+
+function renderAll() { try { renderChart(window.JK_ROWS || DEFAULT_JK); } catch (e) { console.error('Carta:', e); } renderAnn(); renderTakwim(); renderJadual(); renderPenjejak(); renderDuty(); updateSPMCountdown(); updateDalamanCountdown(); }
 async function loadSheetData() {
     if (!SHEET_ID && !SHEET_PUB_URL) return;
-    const jobs = [['takwim', applyTakwim], ['guru', applyGuru], ['jawatankuasa', renderChart], ['pautan', applyPautan], ['tetapan', applyTetapan], ['senarai_guru', applySenarai], ['senarai_kelas', applyKelas]];
+    const jobs = [['takwim', applyTakwim], ['guru', applyGuru], ['jawatankuasa', renderChart], ['pautan', applyPautan], ['tetapan', applyTetapan], ['senarai_guru', applySenarai], ['senarai_kelas', applyKelas], ['jadual', applyJadual], ['penjejak', applyPenjejak]];
     await Promise.all(jobs.map(async ([tab, fn]) => { const rows = await fetchRows(tab); if (rows) fn(rows); }));
     renderAll(); applyLinks();
 }
@@ -1275,6 +1407,19 @@ window.addEventListener('message', ev => {
             <div class="px-5 py-3 border-t border-slate-100 bg-slate-50 grid grid-cols-2 gap-2 shrink-0">
                 <button type="button" onclick="kpCopy()" class="px-4 py-3 rounded-xl text-xs font-extrabold bg-white border-2 border-slate-200 text-slate-700 hover:border-sky-400"><i class="fa-regular fa-copy mr-1"></i> Salin Teks</button>
                 <button type="button" onclick="kpToWa()" class="wa-send px-4 py-3 rounded-xl text-xs font-extrabold text-white"><i class="fa-solid fa-image mr-1"></i> Gambar / WhatsApp</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="pr-modal" class="fixed inset-0 z-[118] hidden bg-slate-950/80 backdrop-blur-sm sm:p-4 flex items-center justify-center" role="dialog" aria-modal="true">
+        <div class="bg-white w-full h-[100dvh] sm:h-auto sm:max-h-[92vh] sm:max-w-xl sm:rounded-3xl shadow-2xl overflow-hidden flex flex-col">
+            <div class="px-5 py-4 flex items-center justify-between text-white shrink-0" style="background:linear-gradient(135deg,#F47220,#004A5D)">
+                <div class="font-extrabold"><i class="fa-solid fa-bell-concierge mr-2"></i>Peringatan Hari Ini</div>
+                <button type="button" onclick="prClose()" class="w-9 h-9 rounded-full bg-white/20 hover:bg-white/30" aria-label="Tutup"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="p-5 overflow-y-auto space-y-3 flex-1">
+                <p class="text-[11px] text-slate-500">Cadangan dijana daripada takwim (H-3, H-1, hari H), jadual esok/hari ini dan serahan yang hampir/lewat. Tekan <b>Hantar</b> untuk buka mesej WhatsApp yang sedia diisi.</p>
+                <div id="pr-list" class="space-y-3"></div>
             </div>
         </div>
     </div>
