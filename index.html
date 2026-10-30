@@ -1129,10 +1129,11 @@ let JADUAL = [], JD = { u: '', t: '', p: false };
 const sod = d => new Date(d.getFullYear(), d.getMonth(), d.getDate());
 const dayDiff = d => Math.round((sod(d) - sod(new Date())) / 864e5);
 const fmtTgl = d => `${HARI_BM[d.getDay()]}, ${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()}`;
+const mKey = m => { const q = String(m || '').match(/(\d{1,2})[.:](\d{2})/); if (!q) return 0; let h = +q[1]; if (h < 7) h += 12; return h * 60 + +q[2]; };
 function applyJadual(rows) {
     if (!rows.head || !rows.head.includes('tarikh') || !rows.head.includes('matapelajaran')) return;
     JADUAL = rows.filter(r => (r.aktif || 'YA').toUpperCase() !== 'TIDAK').map(r => ({ u: r.ujian || '', t: r.tingkatan || '', d: parseDate(r.tarikh), m: r.masa || '', s: r.matapelajaran || '', c: r.catatan || '' }))
-        .filter(x => x.d && x.s).sort((a, b) => a.d - b.d || a.m.localeCompare(b.m));
+        .filter(x => x.d && x.s).sort((a, b) => a.d - b.d || mKey(a.m) - mKey(b.m));
 }
 function jdSet(k, v) { JD[k] = v; sfx('click'); renderJadual(); }
 function renderJadual() {
@@ -1390,8 +1391,10 @@ window.addEventListener('message', ev => {
             <div class="p-5 overflow-y-auto space-y-3 flex-1">
                 <div class="grid grid-cols-2 gap-2">
                     <select id="kp-ex" class="opr-in" onchange="kpSet('ex',this.value)"></select>
-                    <input id="kp-tarikh" type="date" class="opr-in" oninput="kpSet('tarikh',this.value)">
+                    <input id="kp-tarikh" type="date" class="opr-in" onchange="kpDate(this.value)">
                 </div>
+                <div id="kp-drafts" class="flex flex-wrap gap-2"></div>
+                <div id="kp-note"></div>
                 <div class="flex items-center gap-2 text-xs font-bold text-slate-500 px-1"><i class="fa-solid fa-location-dot text-sky-500"></i> Tempat ambil kertas: Bilik UPP</div>
                 <div id="kp-papers" class="space-y-3"></div>
                 <div class="grid grid-cols-3 gap-2">
@@ -1400,9 +1403,10 @@ window.addEventListener('message', ev => {
                 </div>
                 <textarea id="kp-text" rows="9" class="opr-in" style="font-family:inherit;line-height:1.5"></textarea>
             </div>
-            <div class="px-5 py-3 border-t border-slate-100 bg-slate-50 grid grid-cols-2 gap-2 shrink-0">
-                <button type="button" onclick="kpCopy()" class="px-4 py-3 rounded-xl text-xs font-extrabold bg-white border-2 border-slate-200 text-slate-700 hover:border-sky-400"><i class="fa-regular fa-copy mr-1"></i> Salin Teks</button>
-                <button type="button" onclick="kpToWa()" class="wa-send px-4 py-3 rounded-xl text-xs font-extrabold text-white"><i class="fa-solid fa-image mr-1"></i> Gambar / WhatsApp</button>
+            <div class="px-5 py-3 border-t border-slate-100 bg-slate-50 grid grid-cols-5 gap-2 shrink-0">
+                <button type="button" onclick="kpSaveBtn()" class="col-span-1 px-2 py-3 rounded-xl text-xs font-extrabold text-white" style="background:#004A5D"><i class="fa-solid fa-floppy-disk mr-1"></i>Simpan</button>
+                <button type="button" onclick="kpCopy()" class="col-span-2 px-2 py-3 rounded-xl text-xs font-extrabold bg-white border-2 border-slate-200 text-slate-700 hover:border-sky-400"><i class="fa-regular fa-copy mr-1"></i> Salin Teks</button>
+                <button type="button" onclick="kpToWa()" class="wa-send col-span-2 px-2 py-3 rounded-xl text-xs font-extrabold text-white"><i class="fa-solid fa-image mr-1"></i> Gambar / WA</button>
             </div>
         </div>
     </div>
@@ -1735,7 +1739,7 @@ const KP_MASA = [
 const KP_DEF_KELAS = ['PERALIHAN A'].concat(
     [1, 2, 3].flatMap(t => ['INSPIRASI', 'INTELEK', 'ILMIAH', 'ILHAM', 'INOVATIF', 'INSENTIF'].map(k => t + ' ' + k)),
     [4, 5].flatMap(t => ['SN', 'EA', 'SP', 'SG', 'SS', 'T1', 'T2', 'PVMA'].map(k => t + ' ' + k)));
-const KP_KERTAS = ["AMALAN BAHASA MELAYU (101)", "ASAS SAINS KOMPUTER (70)", "BAHASA CINA (6351)", "BAHASA CINA KERTAS 1 (6351/1)", "BAHASA CINA KERTAS 2 (6351/2)", "BAHASA CINA KERTAS 3 (6351/3)", "BAHASA CINA KERTAS 4 (6351/4)", "BAHASA INGGERIS KERTAS 1 (1119/1)", "BAHASA INGGERIS KERTAS 2 (1119/2)", "BAHASA INGGERIS KERTAS 3 (1119/3)", "BAHASA INGGERIS KERTAS 4 (1119/4)", "BAHASA MELAYU KERTAS 1 (1103/1)", "BAHASA MELAYU KERTAS 2 (1103/2)", "BAHASA MELAYU KERTAS 3 (1103/3)", "BAHASA MELAYU KERTAS 4 (1103/4)", "BAHASA TAMIL (6354)", "BAHASA TAMIL KERTAS 1 (6354/1)", "BAHASA TAMIL KERTAS 2 (6354/2)", "BAHASA TAMIL KERTAS 3 (6354/3)", "BAHASA TAMIL KERTAS 4 (6354/4)", "BIOLOGI KERTAS 1 (4551/1)", "BIOLOGI KERTAS 2 (4551/2)", "BIOLOGI KERTAS 3 (4551/3)", "EKONOMI KERTAS 1 (3767/1)", "EKONOMI KERTAS 2 (3767/2)", "FIZIK KERTAS 1 (4531/1)", "FIZIK KERTAS 2 (4531/2)", "FIZIK KERTAS 3 (4531/3)", "GEOGRAFI (23)", "GEOGRAFI KERTAS 1 (23/1)", "GEOGRAFI KERTAS 2 (23/2)", "GRAFIK KOMUNIKASI TEKNIKAL KERTAS 1 (3771/1)", "GRAFIK KOMUNIKASI TEKNIKAL KERTAS 2 (3771/2)", "KESUSASTERAAN TAMIL KERTAS 1 (9217/1)", "KESUSASTERAAN TAMIL KERTAS 2 (9217/2)", "KIMIA KERTAS 1 (4541/1)", "KIMIA KERTAS 2 (4541/2)", "KIMIA KERTAS 3 (4541/3)", "MATEMATIK (1449)", "MATEMATIK KERTAS 1 (1449/1)", "MATEMATIK KERTAS 2 (1449/2)", "MATEMATIK TAMBAHAN KERTAS 1 (3472/1)", "MATEMATIK TAMBAHAN KERTAS 2 (3472/2)", "PENDIDIKAN ISLAM (1223)", "PENDIDIKAN ISLAM KERTAS 1 (1223/1)", "PENDIDIKAN ISLAM KERTAS 2 (1223/2)", "PENDIDIKAN JASMANI DAN KESIHATAN", "PENDIDIKAN MORAL KERTAS 1 (1225/1)", "PENDIDIKAN MORAL KERTAS 2 (1225/2)", "PENDIDIKAN SENI VISUAL KERTAS 1 (2611/1)", "PENDIDIKAN SENI VISUAL KERTAS 2 (2611/2)", "PENDIDIKAN SENI VISUAL KERTAS 3 (2611/3)", "PERNIAGAAN KERTAS 1 (3766/1)", "PERNIAGAAN KERTAS 2 (3766/2)", "PRINSIP PERAKAUNAN KERTAS 1 (3756/1)", "PRINSIP PERAKAUNAN KERTAS 2 (3756/2)", "PRINSIP PERAKAUNAN KERTAS 3 (3756/3)", "REKA BENTUK DAN TEKNOLOGI (71)", "SAINS (1511)", "SAINS KERTAS 1 (1511/1)", "SAINS KERTAS 2 (1511/2)", "SAINS KOMPUTER KERTAS 1 (3770/1)", "SAINS KOMPUTER KERTAS 2 (3770/2)", "SEJARAH (1249)", "SEJARAH KERTAS 1 (1249/1)", "SEJARAH KERTAS 2 (1249/2)"];
+const KP_KERTAS = ["Amalan Bahasa Melayu", "Bahasa Melayu", "Bahasa Inggeris", "Matematik", "Sains", "Pendidikan Islam", "Pendidikan Jasmani dan Kesihatan", "Pendidikan Moral", "Bahasa Melayu Kertas 1 (02/1)", "Bahasa Melayu Kertas 2 (02/2)", "Bahasa Inggeris Kertas 1 (12/1)", "Bahasa Inggeris Kertas 2 (12/2)", "Sejarah (21)", "Geografi (23)", "Bahasa Cina (32)", "Bahasa Tamil (33)", "Pendidikan Islam (45)", "Matematik (50)", "Sains (55)", "Asas Sains Komputer (70)", "Reka Bentuk dan Teknologi (71)", "Pendidikan Seni Visual Kertas 1", "Pendidikan Seni Visual Kertas 2", "Bahasa Melayu Kertas 1 (1103/1)", "Bahasa Melayu Kertas 2 (1103/2)", "Bahasa Melayu Kertas 3 (1103/3)", "Bahasa Melayu Kertas 4 (1103/4)", "Bahasa Inggeris Kertas 1 (1119/1)", "Bahasa Inggeris Kertas 2 (1119/2)", "Bahasa Inggeris Kertas 3 (1119/3)", "Bahasa Inggeris Kertas 4 (1119/4)", "Matematik Kertas 1 (1449/1)", "Matematik Kertas 2 (1449/2)", "Matematik Tambahan Kertas 1 (3472/1)", "Matematik Tambahan Kertas 2 (3472/2)", "Sejarah Kertas 1 (1249/1)", "Sejarah Kertas 2 (1249/2)", "Sains Kertas 1 (1511/1)", "Sains Kertas 2 (1511/2)", "Biologi Kertas 1 (4551/1)", "Biologi Kertas 2 (4551/2)", "Biologi Kertas 3 (4551/3)", "Fizik Kertas 1 (4531/1)", "Fizik Kertas 2 (4531/2)", "Fizik Kertas 3 (4531/3)", "Kimia Kertas 1 (4541/1)", "Kimia Kertas 2 (4541/2)", "Kimia Kertas 3 (4541/3)", "Ekonomi Kertas 1 (3767/1)", "Ekonomi Kertas 2 (3767/2)", "Perniagaan Kertas 1 (3766/1)", "Perniagaan Kertas 2 (3766/2)", "Perniagaan Kertas 4 (3766/4)", "Prinsip Perakaunan Kertas 1 (3756/1)", "Prinsip Perakaunan Kertas 2 (3756/2)", "Prinsip Perakaunan Kertas 4 (3756/4)", "Pendidikan Islam Kertas 1 (1223/1)", "Pendidikan Moral (1225)", "Pendidikan Seni Visual Kertas 1 (2611/1)", "Pendidikan Seni Visual Kertas 2 (2611/2)", "Grafik Komunikasi Teknikal Kertas 1 (3771/1)", "Sains Komputer Kertas 1 (3770/1)", "Bahasa Cina Kertas 1 (6351/1)", "Bahasa Cina Kertas 2 (6351/2)", "Bahasa Tamil Kertas 1 (6354/1)", "Bahasa Tamil Kertas 2 (6354/2)", "Kesusasteraan Tamil (9217)", "Geografi Kertas 1 (2280/1)", "Geografi Kertas 2 (2280/2)"];
 const kpNewPaper = () => ({ kertas: '', mula: '', tamat: '', waktu: '0', waktuLain: '', rows: [{ nama: '', kelas: '', hadir: true, relief: '' }] });
 let KP = { ex: 0, tarikh: '', info: 'Bilik UPP', papers: [kpNewPaper()], cur: 0 }, KP_EXTRA = [];
 try {
@@ -1747,7 +1751,52 @@ try {
     }
 } catch (e) {}
 const kpP = () => KP.papers[KP.cur] || (KP.papers[KP.cur] = kpNewPaper());
-function kpSave() { try { localStorage.setItem(KP_KEY, JSON.stringify({ kp: { ex: KP.ex }, papers: KP.papers, extra: KP_EXTRA })); } catch (e) {} }
+const KP_DKEY = 'upp_kp_saved_v1';
+function kpDrafts() { try { const o = JSON.parse(localStorage.getItem(KP_DKEY) || '{}'); return o && typeof o === 'object' ? o : {}; } catch (e) { return {}; } }
+const kpHas = ps => ps.some(p => (p.kertas || '').trim() || p.rows.some(r => r.nama || r.relief));
+function kpDraftPut() {
+    if (!KP.tarikh) return; const D = kpDrafts();
+    if (kpHas(KP.papers)) D[KP.tarikh] = { ex: KP.ex, papers: KP.papers, t: Date.now() }; else delete D[KP.tarikh];
+    const lim = ymd(new Date(Date.now() - 45 * 864e5)); Object.keys(D).forEach(k => { if (k < lim) delete D[k]; });
+    try { localStorage.setItem(KP_DKEY, JSON.stringify(D)); } catch (e) {}
+}
+function kpSave() { try { localStorage.setItem(KP_KEY, JSON.stringify({ kp: { ex: KP.ex }, papers: KP.papers, extra: KP_EXTRA })); } catch (e) {} kpDraftPut(); }
+function kpLoadDate(v) {
+    const d = kpDrafts()[v]; KP.tarikh = v; KP.cur = 0;
+    if (d && Array.isArray(d.papers) && d.papers.length) { KP.papers = d.papers.map(x => Object.assign(kpNewPaper(), x)); KP.ex = d.ex || 0; return true; }
+    KP.papers = [kpNewPaper()]; return false;
+}
+function kpDate(v) { if (!v) return; kpDraftPut(); const had = kpLoadDate(v); sfx('click'); if (had) { kpRender(); oprToast('Draf dimuat'); } else if (!kpAuto(true)) kpRender(); else oprToast('Kertas diisi dari jadual'); }
+function kpDelDraft(k) { const D = kpDrafts(); delete D[k]; try { localStorage.setItem(KP_DKEY, JSON.stringify(D)); } catch (e) {} if (KP.tarikh === k) { KP.papers = [kpNewPaper()]; KP.cur = 0; } sfx('click'); kpRender(); }
+function kpSaveBtn() { if (!kpHas(KP.papers)) { oprToast('Tiada maklumat untuk disimpan', '#FF4C16'); return; } kpSave(); sfx('ok'); const d = ymdParse(KP.tarikh); oprToast(`Draf ${d ? d.getDate() + ' ' + MON3[d.getMonth()] : ''} disimpan - boleh edit semula esok`, '#004A5D'); kpRender(); }
+// ---- Isi automatik dari tab jadual ----
+const kpMin = (h, m) => { h = +h; if (h < 7) h += 12; return h * 60 + +m; };
+function kpTimes(txt) { const m = String(txt || '').match(/(\d{1,2})[.:](\d{2})/g) || []; const f = t => { const q = t.split(/[.:]/); return kpMin(q[0], q[1]); }; return m.map(f); }
+const kpHM = n => `${String(Math.floor(n / 60)).padStart(2, '0')}:${String(n % 60).padStart(2, '0')}`;
+function kpMatch(sub) {
+    const n = x => String(x).toUpperCase().replace(/\s+/g, ' ').trim(), q = n(sub), base = x => n(x).replace(/\s*\(.*\)\s*$/, '');
+    return KP_KERTAS.find(k => n(k) === q) || KP_KERTAS.find(k => base(k) === q) || KP_KERTAS.find(k => n(k).startsWith(q)) || sub.trim();
+}
+function kpJadualFor(date) {
+    const rows = (typeof JADUAL !== 'undefined' ? JADUAL : []).filter(x => ymd(x.d) === date), seen = new Set(), out = [];
+    rows.forEach(x => {
+        const k = x.s.trim().toUpperCase() + '|' + x.m.trim(); if (seen.has(k)) return; seen.add(k);
+        const t = kpTimes(x.m), mula = t[0], tamat = t[1], g = 0;
+        let wk = '0'; if (mula) { let best = -1; KP_MASA[g].forEach((sl, i) => { const q = kpTimes(sl); if (q[1] && q[1] <= mula) best = i; }); wk = String(best < 0 ? 0 : best); }
+        out.push({ u: x.u, p: Object.assign(kpNewPaper(), { kertas: kpMatch(x.s), mula: mula ? kpHM(mula) : '', tamat: tamat ? kpHM(tamat) : '', waktu: wk }) });
+    });
+    return out;
+}
+function kpAuto(silent) {
+    const L = kpJadualFor(KP.tarikh); if (!L.length) { if (!silent) oprToast('Tiada jadual untuk tarikh ini', '#FF4C16'); return 0; }
+    const blank = !kpHas(KP.papers), have = new Set(KP.papers.map(p => (p.kertas || '').trim().toUpperCase())); let add = 0;
+    if (blank) KP.papers = [];
+    L.forEach(o => { if (!have.has(o.p.kertas.trim().toUpperCase())) { KP.papers.push(o.p); add++; } });
+    if (!KP.papers.length) KP.papers = [kpNewPaper()];
+    const ei = EXAMS.findIndex(x => L[0].u && x[0].toUpperCase() === L[0].u.trim().toUpperCase()); if (ei >= 0 && blank) KP.ex = ei;
+    KP.cur = 0; kpSave(); if (!silent) { sfx('ok'); oprToast(add ? `${add} kertas diisi dari jadual` : 'Semua kertas sudah ada'); } kpRender(); return add;
+}
+function kpNoRelief() { return KP.papers.reduce((n, p) => n + p.rows.filter(r => !r.hadir && (r.nama || r.relief) && !(r.relief || '').trim()).length, 0); }
 function kpNames() {
     const set = new Set(); const add = n => { n = (n || '').trim(); if (n) set.add(n); };
     SENARAI.forEach(add); (window.JK_ROWS || []).forEach(r => add(r.nama)); DUTY.forEach(d => add(d.nama)); KP_EXTRA.forEach(add);
@@ -1774,6 +1823,11 @@ function kpWarn(p) {
 function kpRender() {
     byId('kp-ex').innerHTML = EXAMS.map((x, i) => `<option value="${i}" ${i === +KP.ex ? 'selected' : ''}>${esc(x[0])}</option>`).join('');
     byId('kp-tarikh').value = KP.tarikh;
+    const D = kpDrafts(), ks = Object.keys(D).sort();
+    byId('kp-drafts').innerHTML = ks.length ? '<div class="w-full text-[10px] font-extrabold text-slate-400 uppercase tracking-wide">Draf tersimpan</div>' + ks.map(k => { const d = ymdParse(k), n = D[k].papers.length, on = k === KP.tarikh; return `<span class="inline-flex items-stretch rounded-full overflow-hidden border-2 ${on ? 'border-sky-500 bg-sky-500 text-white' : 'border-slate-200 bg-white text-slate-700'}"><button type="button" onclick="kpDate('${k}')" class="pl-3 pr-2 py-1.5 text-[11px] font-extrabold">${d ? KP_HR[d.getDay()].slice(0, 3) + ' ' + d.getDate() + ' ' + MON3[d.getMonth()] : k} · ${n} kertas</button><button type="button" onclick="kpDelDraft('${k}')" class="pr-2.5 pl-1 text-[11px] opacity-70 hover:opacity-100" aria-label="Padam draf"><i class="fa-solid fa-xmark"></i></button></span>`; }).join('') : '';
+    const nr = kpNoRelief(), sv = D[KP.tarikh], old = sv && ymd(new Date(sv.t)) < ymd(new Date());
+    const jn = kpJadualFor(KP.tarikh).length;
+    byId('kp-note').innerHTML = (jn ? `<button type="button" onclick="kpAuto()" class="w-full mb-2 py-2.5 rounded-xl text-white text-xs font-extrabold" style="background:linear-gradient(135deg,#F47220,#004A5D)"><i class="fa-solid fa-wand-magic-sparkles mr-1"></i> Isi automatik dari Jadual Peperiksaan (${jn} kertas)</button>` : '') + (old ? '<div class="rounded-xl bg-sky-50 border border-sky-200 text-sky-800 text-[11px] font-bold px-3 py-2 mb-2"><i class="fa-solid fa-pen mr-1"></i>Draf disimpan lebih awal. Kemas kini guru tidak hadir &amp; relief jika ada perubahan.</div>' : '') + (nr ? `<div class="rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-[11px] font-bold px-3 py-2"><i class="fa-solid fa-triangle-exclamation mr-1"></i>${nr} guru tidak hadir belum ada guru relief</div>` : '');
     byId('kp-papers').innerHTML = KP.papers.map((p, pi) => {
         if (pi !== KP.cur) {
             const nm = p.rows.filter(r => r.nama || r.relief).length;
@@ -1827,7 +1881,7 @@ function kpBuild() {
     });
     byId('kp-text').value = blocks.length ? `📋 *SENARAI AMBIL KERTAS ${x[0]}*\n${tgl ? '📅 ' + tgl + '\n' : ''}📍 Bilik UPP\n\n${blocks.join('\n\n━━━━━━━━━━\n\n')}\n\nℹ️ _Ambil kertas SEBELUM masa ujian bermula._ Guru relief, sila ambil bagi pihak guru yang tidak hadir. Terima kasih.${WA_FOOT}` : '';
 }
-function kpOpen() { oprNeedAdmin(() => { if (!KP.tarikh) KP.tarikh = ymd(new Date()); KP.cur = Math.min(KP.cur, KP.papers.length - 1); sfx('click'); kpRender(); oprShow('kp-modal'); }); }
+function kpOpen() { oprNeedAdmin(() => { if (!KP.tarikh) { const t = ymd(new Date()); if (!kpLoadDate(t)) kpAuto(true); KP.tarikh = t; } KP.cur = Math.min(KP.cur, KP.papers.length - 1); sfx('click'); kpRender(); oprShow('kp-modal'); }); }
 function kpClose() { byId('kp-modal').classList.add('hidden'); document.body.style.overflow = ''; }
 function kpCopy() {
     const a = byId('kp-text'), v = a.value; if (!v) { oprToast('Senarai kosong', '#FF4C16'); return; }
