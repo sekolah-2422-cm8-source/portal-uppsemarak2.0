@@ -1292,30 +1292,71 @@ function closeKertas() { byId('kertas-modal').classList.add('hidden'); document.
 // ---- Imbas QR Kertas Soalan (laman utama) ----
 function openLabel(e) { openKertas(e, 'LABEL'); }
 function qsAdmin() { qsStop().then(() => { byId('qs-modal').classList.add('hidden'); openKertas(null, 'PERGERAKAN'); }); }
-let qsObj = null, qsLib = null;
+let qsLib = null, qsStream = null, qsTimer = 0, qsRun = 0;
 function qsLoad() {
-    if (window.Html5Qrcode) return Promise.resolve();
-    return qsLib || (qsLib = new Promise((ok, no) => { const s = document.createElement('script'); s.src = 'https://unpkg.com/html5-qrcode@2.3.8'; s.onload = ok; s.onerror = () => { qsLib = null; no(new Error('lib')); }; document.head.appendChild(s); }));
+    if (window.jsQR) return Promise.resolve();
+    return qsLib || (qsLib = new Promise((ok, no) => { const s = document.createElement('script'); s.src = 'https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.min.js'; s.onload = ok; s.onerror = () => { qsLib = null; no(new Error('lib')); }; document.head.appendChild(s); }));
 }
-const qsKod = t => { const m = String(t || '').match(/[?&]k=([A-Za-z0-9]+)/); return m ? m[1] : (/^[A-Za-z0-9]{3,40}$/.test(String(t || '').trim()) ? String(t).trim() : ''); };
+const qsKod = t => { t = String(t || '').trim(); const m = t.match(/[?&]k=([^&#\s]+)/); if (m) { try { return decodeURIComponent(m[1]); } catch (e) { return m[1]; } } return /^[A-Za-z0-9_\-]{3,60}$/.test(t) ? t : ''; };
 function qsDone(text) {
     const k = qsKod(text); if (!k) { byId('qs-msg').textContent = 'QR ini bukan label kertas soalan. Cuba lagi.'; return false; }
-    sfx('ok'); qsStop().then(() => { byId('qs-modal').classList.add('hidden'); openKertas(null, k); }); return true;
+    sfx('ok'); try { navigator.vibrate && navigator.vibrate(60); } catch (e) {}
+    qsStop().then(() => { byId('qs-modal').classList.add('hidden'); openKertas(null, k); }); return true;
 }
-async function qsStop() { try { if (qsObj) { if (qsObj.isScanning) await qsObj.stop(); qsObj.clear(); } } catch (e) {} qsObj = null; }
+async function qsStop() {
+    qsRun++; clearTimeout(qsTimer);
+    try { if (qsStream) qsStream.getTracks().forEach(t => t.stop()); } catch (e) {}
+    qsStream = null; const r = byId('qs-reader'); if (r) r.innerHTML = '';
+}
 async function qsOpen() {
     sfx('click'); oprShow('qs-modal'); const msg = byId('qs-msg'); msg.textContent = 'Memulakan kamera...';
+    const run = ++qsRun;
     try {
-        await qsLoad(); await qsStop(); qsObj = new Html5Qrcode('qs-reader');
-        await qsObj.start({ facingMode: 'environment' }, { fps: 10, qrbox: (w, h) => { const n = Math.floor(Math.min(w, h) * .75); return { width: n, height: n }; } }, t => { if (qsObj && qsObj._done) return; if (qsDone(t) && qsObj) qsObj._done = true; }, () => {});
+        await qsLoad(); await qsStop(); const my = ++qsRun;
+        qsStream = await navigator.mediaDevices.getUserMedia({ audio: false, video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 } } });
+        if (my !== qsRun) { qsStop(); return; }
+        try { const tr = qsStream.getVideoTracks()[0]; const cp = tr.getCapabilities ? tr.getCapabilities() : {}; if (cp.focusMode && cp.focusMode.includes('continuous')) await tr.applyConstraints({ advanced: [{ focusMode: 'continuous' }] }); } catch (e) {}
+        const rd = byId('qs-reader'); rd.innerHTML = '';
+        rd.style.position = 'relative';
+        const v = document.createElement('video'); v.setAttribute('playsinline', ''); v.muted = true; v.autoplay = true; v.srcObject = qsStream; v.style.cssText = 'width:100%;display:block;max-height:60vh;object-fit:cover';
+        const g = document.createElement('div'); g.style.cssText = 'position:absolute;left:50%;top:50%;width:68%;aspect-ratio:1;transform:translate(-50%,-50%);border:4px solid #F47220;border-radius:24px;box-shadow:0 0 0 999px rgba(0,0,0,.25);pointer-events:none';
+        rd.appendChild(v); rd.appendChild(g); await v.play();
         msg.textContent = 'Arahkan kamera ke kod QR pada label kertas soalan.';
+        let det = null; try { if (window.BarcodeDetector) det = new BarcodeDetector({ formats: ['qr_code'] }); } catch (e) {}
+        const cv = document.createElement('canvas'), cx = cv.getContext('2d', { willReadFrequently: true });
+        const tick = async () => {
+            if (my !== qsRun) return;
+            try {
+                if (v.videoWidth) {
+                    let txt = '';
+                    if (det) { const r = await det.detect(v); if (r && r[0]) txt = r[0].rawValue; }
+                    if (!txt) {
+                        const sc = Math.min(1, 720 / Math.max(v.videoWidth, v.videoHeight)); cv.width = Math.round(v.videoWidth * sc); cv.height = Math.round(v.videoHeight * sc);
+                        cx.drawImage(v, 0, 0, cv.width, cv.height); const d = cx.getImageData(0, 0, cv.width, cv.height);
+                        const q = jsQR(d.data, d.width, d.height, { inversionAttempts: 'dontInvert' }); if (q) txt = q.data;
+                    }
+                    if (txt && my === qsRun) { if (qsDone(txt)) return; }
+                }
+            } catch (e) {}
+            qsTimer = setTimeout(tick, 50);
+        };
+        tick();
     } catch (e) { msg.textContent = 'Kamera tak dapat dibuka. Benarkan akses kamera, atau guna butang ambil gambar di bawah.'; }
 }
 function qsClose() { qsStop(); byId('qs-modal').classList.add('hidden'); document.body.style.overflow = ''; sfx('click'); }
+function qsImg(f) { return new Promise((ok, no) => { const im = new Image(); im.onload = () => { ok(im); }; im.onerror = no; im.src = URL.createObjectURL(f); }); }
 async function qsFile(inp) {
     const f = inp.files[0]; if (!f) return; const msg = byId('qs-msg'); msg.textContent = 'Membaca QR...';
-    try { await qsLoad(); await qsStop(); const r = new Html5Qrcode('qs-reader'); const t = await r.scanFile(f, false); try { r.clear(); } catch (e) {} if (!qsDone(t)) { inp.value = ''; } }
-    catch (e) { msg.textContent = 'QR tidak dapat dibaca. Ambil gambar yang lebih dekat dan jelas.'; }
+    try {
+        await qsLoad(); await qsStop(); const im = await qsImg(f); let t = '';
+        for (const mx of [1600, 1000, 600, 2400]) {
+            const sc = Math.min(1, mx / Math.max(im.width, im.height)), c = document.createElement('canvas'); c.width = Math.round(im.width * sc); c.height = Math.round(im.height * sc);
+            const x = c.getContext('2d', { willReadFrequently: true }); x.fillStyle = '#fff'; x.fillRect(0, 0, c.width, c.height); x.drawImage(im, 0, 0, c.width, c.height);
+            const d = x.getImageData(0, 0, c.width, c.height), q = jsQR(d.data, d.width, d.height, { inversionAttempts: 'attemptBoth' }); if (q) { t = q.data; break; }
+        }
+        URL.revokeObjectURL(im.src);
+        if (!t) throw new Error('x'); qsDone(t);
+    } catch (e) { msg.textContent = 'QR tidak dapat dibaca. Ambil gambar yang lebih dekat dan jelas.'; }
     inp.value = '';
 }
 
